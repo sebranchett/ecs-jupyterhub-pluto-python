@@ -2,7 +2,7 @@
 from aws_cdk import (
     aws_autoscaling as autoscaling,
     aws_ec2 as ec2,
-    aws_elasticloadbalancing as elb,
+    aws_elasticloadbalancingv2 as elbv2,
     App, CfnOutput, Stack
 )
 
@@ -30,7 +30,7 @@ class LoadBalancerStack(Stack):
             user_data=httpd,
         )
 
-        lb = elb.ApplicationLoadBalancer(
+        lb = elbv2.ApplicationLoadBalancer(
             self, "LB",
             vpc=vpc,
             internet_facing=True)
