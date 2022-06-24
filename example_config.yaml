@@ -1,0 +1,7 @@
+---
+
+base_name: 'some-basename'
+hosted_zone_id: 'XXXXXXXXXXXXXXXXXXXXX'
+hosted_zone_name: 'some-domain.com'
+
+domain_prefix: 'dev'
