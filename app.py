@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
+import yaml
+
 from aws_cdk import (
     aws_autoscaling as autoscaling,
     aws_ec2 as ec2,
-    aws_elasticloadbalancingv2 as elbv2,
+    aws_elasticloadbalancingv2 as elb,
+    aws_route53 as route53,
+    aws_route53_targets as route53_targets,
+    aws_certificatemanager as acm,
     App, CfnOutput, Stack
 )
 
@@ -10,6 +15,15 @@ from aws_cdk import (
 class LoadBalancerStack(Stack):
     def __init__(self, app: App, id: str) -> None:
         super().__init__(app, id)
+
+        # General configuration variables
+        config_yaml = yaml.load(
+            open('config.yaml'), Loader=yaml.FullLoader)
+        base_name = config_yaml["base_name"]
+        domain_prefix = config_yaml['domain_prefix']
+        application_prefix = 'pluto-' + domain_prefix
+        hosted_zone_id = config_yaml['hosted_zone_id']
+        hosted_zone_name = config_yaml['hosted_zone_name']
 
         vpc = ec2.Vpc(self, "VPC")
 
@@ -30,23 +44,58 @@ class LoadBalancerStack(Stack):
             user_data=httpd,
         )
 
-        lb = elbv2.ApplicationLoadBalancer(
-            self, "LB",
+        load_balancer = elb.ApplicationLoadBalancer(
+            self, f'{base_name}LoadBalancer',
             vpc=vpc,
             internet_facing=True)
 
-        listener = lb.add_listener("Listener", port=80)
-        listener.add_targets("Target", port=80, targets=[asg])
-        listener.connections.allow_default_port_from_any_ipv4(
-            "Open to the world"
+        hosted_zone = \
+            route53.PublicHostedZone.from_hosted_zone_attributes(
+                self,
+                f'{base_name}HostedZone',
+                hosted_zone_id=hosted_zone_id,
+                zone_name=hosted_zone_name
+            )
+
+        certificate = acm.Certificate(
+            self,
+            f'{base_name}Certificate',
+            domain_name='*.' + hosted_zone.zone_name,
+            validation=acm.CertificateValidation.from_dns(
+                hosted_zone=hosted_zone)
+        )
+
+        listener = load_balancer.add_listener(
+            f'{base_name}ServiceELBListener',
+            port=443,
+            protocol=elb.ApplicationProtocol.HTTPS,
+            certificates=[certificate]
+        )
+        
+        listener.add_targets(
+            "Target", port=443,
+            targets=[asg]
         )
 
         asg.scale_on_request_count(
             "AModestLoad", target_requests_per_minute=60
         )
+
+        route53_record = route53.ARecord(
+            self,
+            f'{base_name}ELBRecord',
+            zone=hosted_zone,
+            record_name=application_prefix,
+            target=route53.RecordTarget(alias_target=(
+                route53_targets.LoadBalancerTarget(
+                    load_balancer=load_balancer)))
+        )
+
+        # Output the service URL to CloudFormation outputs
         CfnOutput(
-            self, "LoadBalancer", export_name="LoadBalancer",
-            value=lb.load_balancer_dns_name
+            self,
+            f'{base_name}HubURL',
+            value='https://' + route53_record.domain_name
         )
 
 
