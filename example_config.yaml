@@ -5,3 +5,4 @@ hosted_zone_id: 'XXXXXXXXXXXXXXXXXXXXX'
 hosted_zone_name: 'some-domain.com'
 
 domain_prefix: 'dev'
+certificate_arn: 'arn:aws:acm:<region>:<account>:certificate/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'

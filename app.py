@@ -24,6 +24,7 @@ class LoadBalancerStack(Stack):
         application_prefix = 'pluto-' + domain_prefix
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
+        certificate_arn = config_yaml['certificate_arn']
 
         vpc = ec2.Vpc(self, "VPC")
 
@@ -67,6 +68,7 @@ class LoadBalancerStack(Stack):
                     load_balancer=load_balancer)))
         )
 
+        """
         certificate = acm.Certificate(
             self,
             f'{base_name}Certificate',
@@ -74,14 +76,20 @@ class LoadBalancerStack(Stack):
             validation=acm.CertificateValidation.from_dns(
                 hosted_zone=hosted_zone)
         )
+        # SEB validation can take from 30 minutes to hours, timeout 72 hours
+        # Need to find a better way to split this out
+        """
 
+        certificate = acm.Certificate.from_certificate_arn(
+            self, "Certificate", certificate_arn
+        )
         listener = load_balancer.add_listener(
             f'{base_name}ServiceELBListener',
             port=443,
             protocol=elb.ApplicationProtocol.HTTPS,
             certificates=[certificate]
         )
-        
+
         listener.add_targets(
             "Target", port=443,
             targets=[asg]
