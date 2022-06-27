@@ -68,18 +68,6 @@ class LoadBalancerStack(Stack):
                     load_balancer=load_balancer)))
         )
 
-        """
-        certificate = acm.Certificate(
-            self,
-            f'{base_name}Certificate',
-            domain_name='*.' + hosted_zone.zone_name,
-            validation=acm.CertificateValidation.from_dns(
-                hosted_zone=hosted_zone)
-        )
-        # SEB validation can take from 30 minutes to hours, timeout 72 hours
-        # Need to find a better way to split this out
-        """
-
         certificate = acm.Certificate.from_certificate_arn(
             self, "Certificate", certificate_arn
         )
