@@ -57,6 +57,16 @@ class LoadBalancerStack(Stack):
                 zone_name=hosted_zone_name
             )
 
+        route53_record = route53.ARecord(
+            self,
+            f'{base_name}ELBRecord',
+            zone=hosted_zone,
+            record_name=application_prefix,
+            target=route53.RecordTarget(alias_target=(
+                route53_targets.LoadBalancerTarget(
+                    load_balancer=load_balancer)))
+        )
+
         certificate = acm.Certificate(
             self,
             f'{base_name}Certificate',
@@ -79,16 +89,6 @@ class LoadBalancerStack(Stack):
 
         asg.scale_on_request_count(
             "AModestLoad", target_requests_per_minute=60
-        )
-
-        route53_record = route53.ARecord(
-            self,
-            f'{base_name}ELBRecord',
-            zone=hosted_zone,
-            record_name=application_prefix,
-            target=route53.RecordTarget(alias_target=(
-                route53_targets.LoadBalancerTarget(
-                    load_balancer=load_balancer)))
         )
 
         # Output the service URL to CloudFormation outputs
