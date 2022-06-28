@@ -12,7 +12,7 @@ from aws_cdk import (
 )
 
 
-class LoadBalancerStack(Stack):
+class FrontEndStack(Stack):
     def __init__(self, app: App, id: str) -> None:
         super().__init__(app, id)
 
@@ -73,15 +73,23 @@ class LoadBalancerStack(Stack):
         )
         listener = load_balancer.add_listener(
             f'{base_name}ServiceELBListener',
-            port=443,
-            protocol=elb.ApplicationProtocol.HTTPS,
-            certificates=[certificate]
+            port=80,
+            protocol=elb.ApplicationProtocol.HTTP
         )
+        # SEB replace the previous 3 lines with this,
+        # SEB once certificate is validated
+        #     port=443,
+        #     protocol=elb.ApplicationProtocol.HTTPS,
+        #     certificates=[certificate]
+        # )
 
         listener.add_targets(
-            "Target", port=443,
+            "Target", port=80,
             targets=[asg]
         )
+        # SEB replace "Target" line above with this,
+        # SEB once certificate is validated
+        #     "Target", port=443,
 
         asg.scale_on_request_count(
             "AModestLoad", target_requests_per_minute=60
@@ -96,5 +104,5 @@ class LoadBalancerStack(Stack):
 
 
 app = App()
-LoadBalancerStack(app, "LoadBalancerStack")
+FrontEndStack(app, "FrontEndStack")
 app.synth()
