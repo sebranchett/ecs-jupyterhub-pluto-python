@@ -143,7 +143,6 @@ class FrontEndStack(Stack):
             )
         )
 
-        """
         describe_cognito_user_pool_client = cr.AwsCustomResource(
             self,
             f'{base_name}UserPoolClientIDResource',
@@ -165,7 +164,6 @@ class FrontEndStack(Stack):
             describe_cognito_user_pool_client.get_response_field(
                 'UserPoolClient.ClientSecret'
             )
-        """
 
         # Output the service URL to CloudFormation outputs
         CfnOutput(
