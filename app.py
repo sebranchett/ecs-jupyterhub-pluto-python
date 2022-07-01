@@ -83,23 +83,15 @@ class FrontEndStack(Stack):
         )
         listener = load_balancer.add_listener(
             f'{base_name}ServiceELBListener',
-            port=80,
-            protocol=elb.ApplicationProtocol.HTTP
+            port=443,
+            protocol=elb.ApplicationProtocol.HTTPS,
+            certificates=[certificate]
         )
-        # SEB replace the previous 3 lines with this,
-        # SEB once certificate is validated
-        #     port=443,
-        #     protocol=elb.ApplicationProtocol.HTTPS,
-        #     certificates=[certificate]
-        # )
 
         listener.add_targets(
-            "Target", port=80,
+            "Target", port=443,
             targets=[asg]
         )
-        # SEB replace "Target" line above with this,
-        # SEB once certificate is validated
-        #     "Target", port=443,
 
         asg.scale_on_request_count(
             "AModestLoad", target_requests_per_minute=60

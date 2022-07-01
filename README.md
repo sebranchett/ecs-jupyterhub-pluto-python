@@ -15,3 +15,6 @@ This work is heavily based on the [Jupyter ECS Service CDK project](https://gith
   
   *WARNING:* Validating a certificate can take 30 minutes to hours! Validation will time out after 72 hours.
 - A private repository on Amazon Elastic Container Registry (ECR), in the same region you want your  infrastructure
+
+Tip: If you request a certificate and you work on it for a week because it keeps getting stuck in 'pending validation', then [try this](https://stackoverflow.com/a/68703299/13237339).
+
