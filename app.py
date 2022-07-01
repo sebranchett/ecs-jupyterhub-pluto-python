@@ -70,8 +70,13 @@ class FrontEndStack(Stack):
             record_name=application_prefix,
             target=route53.RecordTarget(alias_target=(
                 route53_targets.LoadBalancerTarget(
-                    load_balancer=load_balancer)))
+                    load_balancer=load_balancer))),
+            delete_existing=True
         )
+        # SEB DNS takes forever, so retain this until debugging is paused
+        # SEB not sure what will happen when the target changes, hence
+        # SEB delete_existing above
+        route53_record.apply_removal_policy(RemovalPolicy.RETAIN)
 
         certificate = acm.Certificate.from_certificate_arn(
             self, "Certificate", certificate_arn
@@ -138,6 +143,7 @@ class FrontEndStack(Stack):
             )
         )
 
+        """
         describe_cognito_user_pool_client = cr.AwsCustomResource(
             self,
             f'{base_name}UserPoolClientIDResource',
@@ -159,6 +165,7 @@ class FrontEndStack(Stack):
             describe_cognito_user_pool_client.get_response_field(
                 'UserPoolClient.ClientSecret'
             )
+        """
 
         # Output the service URL to CloudFormation outputs
         CfnOutput(
