@@ -17,3 +17,8 @@ This work is heavily based on the [Jupyter ECS Service CDK project](https://gith
   
   If it takes longer than 30 minutes, make sure that your Registered domain's 'Name servers' are those named in the Hosted Zone's 'NS' record. [See here](https://stackoverflow.com/a/68703299/13237339).
 - A private repository on Amazon Elastic Container Registry (ECR), in the same region you want your  infrastructure
+
+You can find the ARN of your image repository using the command line:
+```
+aws ecr describe-repositories
+```
