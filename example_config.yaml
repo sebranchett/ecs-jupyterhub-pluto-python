@@ -12,3 +12,5 @@ container_image_tag: 'latest'
 oauth_login_service_name: 'AWS Cognito'
 oauth_login_username_key: 'username'
 oauth_scope: ['openid', 'profile']
+
+num_containers: 1

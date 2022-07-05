@@ -2,7 +2,6 @@
 import yaml
 
 from aws_cdk import (
-    aws_autoscaling as autoscaling,
     aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elb,
     aws_route53 as route53,
@@ -14,11 +13,12 @@ from aws_cdk import (
     aws_iam as iam,
     aws_logs as logs,
     aws_ecr as ecr,
+    aws_ecs_patterns as ecs_patterns,
     App, CfnOutput, Stack, RemovalPolicy
 )
 
 
-class FrontEndStack(Stack):
+class HubStack(Stack):
     def __init__(self, app: App, id: str) -> None:
         super().__init__(app, id)
 
@@ -39,23 +39,6 @@ class FrontEndStack(Stack):
         suffix = f'{suffix_txt}'.lower()
 
         vpc = ec2.Vpc(self, "VPC")
-
-        data = open("./httpd.sh", "rb").read()
-        httpd = ec2.UserData.for_linux()
-        httpd.add_commands(str(data, 'utf-8'))
-
-        asg = autoscaling.AutoScalingGroup(
-            self,
-            "ASG",
-            vpc=vpc,
-            instance_type=ec2.InstanceType.of(
-                ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO
-            ),
-            machine_image=ec2.AmazonLinuxImage(
-                generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
-            ),
-            user_data=httpd,
-        )
 
         load_balancer = elb.ApplicationLoadBalancer(
             self, f'{base_name}LoadBalancer',
@@ -79,25 +62,6 @@ class FrontEndStack(Stack):
             target=route53.RecordTarget(alias_target=(
                 route53_targets.LoadBalancerTarget(
                     load_balancer=load_balancer)))
-        )
-
-        certificate = acm.Certificate.from_certificate_arn(
-            self, "Certificate", certificate_arn
-        )
-        listener = load_balancer.add_listener(
-            f'{base_name}ServiceELBListener',
-            port=443,
-            protocol=elb.ApplicationProtocol.HTTPS,
-            certificates=[certificate]
-        )
-
-        listener.add_targets(
-            "Target", port=443,
-            targets=[asg]
-        )
-
-        asg.scale_on_request_count(
-            "AModestLoad", target_requests_per_minute=60
         )
 
         # User pool and user pool OAuth client
@@ -223,7 +187,9 @@ class FrontEndStack(Stack):
         repository = ecr.Repository.from_repository_arn(
             self, "Repo", container_image_repository_arn
         )
-        ecs_container = ecs_task_definition.add_container(
+
+        # ecs_container =  # will be used later to add mount point
+        ecs_task_definition.add_container(
             f'{base_name}Container',
             image=ecs.ContainerImage.from_ecr_repository(
                 repository=repository,
@@ -272,6 +238,42 @@ class FrontEndStack(Stack):
             vpc=vpc
         )
 
+        ecs_service_security_group = ec2.SecurityGroup(
+            self,
+            f'{base_name}ServiceSG',
+            vpc=vpc,
+            description='Hub ECS service containers security group',
+            allow_all_outbound=True
+        )
+
+        ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
+            self, f'{base_name}Service',
+            cluster=ecs_cluster,
+            task_definition=ecs_task_definition,
+            load_balancer=load_balancer,
+            desired_count=config_yaml['num_containers'],
+            security_groups=[ecs_service_security_group],
+            open_listener=False
+        )
+
+        ecs_service.target_group.configure_health_check(
+            path='/hub',
+            enabled=True,
+            healthy_http_codes='200-302'
+        )
+
+        certificate = acm.Certificate.from_certificate_arn(
+            self, "Certificate", certificate_arn
+        )
+        load_balancer.add_listener(
+            f'{base_name}ServiceELBListener',
+            port=443,
+            protocol=elb.ApplicationProtocol.HTTPS,
+            certificates=[certificate],
+            default_action=elb.ListenerAction.forward(
+                target_groups=[ecs_service.target_group])
+        )
+
         # Output the service URL to CloudFormation outputs
         CfnOutput(
             self,
@@ -281,5 +283,5 @@ class FrontEndStack(Stack):
 
 
 app = App()
-FrontEndStack(app, "FrontEndStack")
+HubStack(app, "HubStack")
 app.synth()
