@@ -178,7 +178,7 @@ class HubStack(Stack):
             self,
             f'{base_name}TaskDefinition',
             cpu=512,
-            memory_limit_mib=2048,
+            memory_limit_mib=1024,
             execution_role=ecs_task_execution_role,
             task_role=ecs_task_role
         )
@@ -274,13 +274,6 @@ class HubStack(Stack):
                 target_groups=[ecs_service.target_group])
         )
 
-        # Output the service URL to CloudFormation outputs
-        CfnOutput(
-            self,
-            f'{base_name}HubURL',
-            value='https://' + route53_record.domain_name
-        )
-
         # Cognito admin users from admins file
         with open('hub_docker/admins') as fp:
             lines = fp.readlines()
@@ -304,6 +297,13 @@ class HubStack(Stack):
                             cognito_user_pool.user_pool_id)
                     )
                 )
+
+        # Output the service URL to CloudFormation outputs
+        CfnOutput(
+            self,
+            f'{base_name}HubURL',
+            value='https://' + route53_record.domain_name
+        )
 
 
 app = App()

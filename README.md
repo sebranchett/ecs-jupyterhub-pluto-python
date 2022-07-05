@@ -23,3 +23,10 @@ This work is heavily based on the [Jupyter ECS Service CDK project](https://gith
   aws ecr describe-repositories
   ```
   Please add this ARN and the image tag to the `config.yaml` file.
+
+## ToDo
+Add EFS.
+Add Fargate Spawner.
+Add Pluto single user.
+Add NetID authentication.
+Think about allowed users/authorisation.
