@@ -35,11 +35,11 @@ Please [see here for temporary authentication details](https://awscli.amazonaws.
 Use this command to get temporary login credentials from AWS, and use them to allow Docker to access your ECR repository:
 
 ```
-aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <repo_uri>
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <ecr_repository_uri>
 ```
 You should receive the message: Login Succeeded.
 
 You can now push your Docker image to ECR as follows:
 ```
-docker push <repo_uri>
+docker push <ecr_repository_uri>
 ```
