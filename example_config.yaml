@@ -14,3 +14,5 @@ oauth_login_username_key: 'username'
 oauth_scope: ['openid', 'profile']
 
 num_containers: 1
+
+admin_temp_password: 'A-secret-1'

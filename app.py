@@ -281,6 +281,30 @@ class HubStack(Stack):
             value='https://' + route53_record.domain_name
         )
 
+        # Cognito admin users from admins file
+        with open('hub_docker/admins') as fp:
+            lines = fp.readlines()
+            for line in lines:
+                cr.AwsCustomResource(
+                    self,
+                    f'{base_name}UserPoolAdminUserResource',
+                    policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
+                        resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
+                    on_create=cr.AwsSdkCall(
+                        service='CognitoIdentityServiceProvider',
+                        action='adminCreateUser',
+                        parameters={
+                            'UserPoolId': cognito_user_pool.user_pool_id,
+                            'Username': line.strip(),
+                            'TemporaryPassword': config_yaml[
+                                'admin_temp_password'
+                            ]
+                        },
+                        physical_resource_id=cr.PhysicalResourceId.of(
+                            cognito_user_pool.user_pool_id)
+                    )
+                )
+
 
 app = App()
 HubStack(app, "HubStack")
