@@ -19,6 +19,13 @@ aws ecr describe-repositories
 ```
 The ARN and URI are different and you will need both: the URI is used here; the ARN is used in your config.yaml.
 
+## Add admin user(s) and allowed users
+The file `admin` should contain the JupyterHub administrator user names, one per line.
+
+A file called `allowed_users` should contain the user names of all the regular users, one per line. See the `example_allowed_users` file.
+
+Please [read this](https://jupyterhub.readthedocs.io/en/stable/getting-started/authenticators-users-basics.html#authentication-and-user-basics) for explanation and warnings.
+
 ## Build and tag the Docker image
 Make sure your Docker Desktop is active and then build and tag an image:
 ```
