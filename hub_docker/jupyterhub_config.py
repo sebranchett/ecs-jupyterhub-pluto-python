@@ -13,8 +13,17 @@ sys.path.insert(0, root)
 c = get_config()
 
 c.JupyterHub.log_level = 10
-c.JupyterHub.admin_users = admin = set()
 
+c.JupyterHub.allowed_users = allowed_users = set()
+with open(join(root, 'allowed_users')) as f:
+    for line in f:
+        if not line:
+            continue
+        parts = line.split()
+        name = parts[0]
+        allowed_users.add(name)
+
+c.JupyterHub.admin_users = admin = set()
 with open(join(root, 'admins')) as f:
     for line in f:
         if not line:

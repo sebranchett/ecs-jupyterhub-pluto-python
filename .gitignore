@@ -2,3 +2,4 @@
 .vscode/
 cdk.out/
 config.yaml
+hub_docker/allowed_users

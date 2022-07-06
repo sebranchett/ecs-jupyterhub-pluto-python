@@ -31,3 +31,5 @@ This work is heavily based on the [Jupyter ECS Service CDK project](https://gith
 - Add NetID authentication.
 - Think about allowed users/authorisation.
 - Kill idle processes.
+- Make tests.
+- Refactor.

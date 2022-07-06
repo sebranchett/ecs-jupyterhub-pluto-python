@@ -274,29 +274,24 @@ class HubStack(Stack):
                 target_groups=[ecs_service.target_group])
         )
 
-        # Cognito admin users from admins file
-        with open('hub_docker/admins') as fp:
-            lines = fp.readlines()
-            for line in lines:
-                cr.AwsCustomResource(
-                    self,
-                    f'{base_name}UserPoolAdminUserResource',
-                    policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
-                        resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
-                    on_create=cr.AwsSdkCall(
-                        service='CognitoIdentityServiceProvider',
-                        action='adminCreateUser',
-                        parameters={
-                            'UserPoolId': cognito_user_pool.user_pool_id,
-                            'Username': line.strip(),
-                            'TemporaryPassword': config_yaml[
-                                'admin_temp_password'
-                            ]
-                        },
-                        physical_resource_id=cr.PhysicalResourceId.of(
-                            cognito_user_pool.user_pool_id)
-                    )
-                )
+        # Cognito admin and allowed users from files
+        all_users = set()
+        for users in ['hub_docker/admins', 'hub_docker/allowed_users']:
+            try:
+                with open(users) as fp:
+                    lines = fp.readlines()
+                    for line in lines:
+                        all_users.add(line.strip())
+            except IOError:
+                pass
+        user_index = 0
+        for user in all_users:
+            user_index += 1
+            cognito.CfnUserPoolUser(
+                self, f'{base_name}UserPoolUser'+str(user_index),
+                username=user,
+                user_pool_id=cognito_user_pool.user_pool_id
+            )
 
         # Output the service URL to CloudFormation outputs
         CfnOutput(
