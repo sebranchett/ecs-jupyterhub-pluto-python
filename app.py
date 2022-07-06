@@ -287,10 +287,24 @@ class HubStack(Stack):
         user_index = 0
         for user in all_users:
             user_index += 1
-            cognito.CfnUserPoolUser(
-                self, f'{base_name}UserPoolUser'+str(user_index),
-                username=user,
-                user_pool_id=cognito_user_pool.user_pool_id
+            cr.AwsCustomResource(
+                self,
+                f'{base_name}UserPoolUser'+str(user_index),
+                policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
+                    resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
+                on_create=cr.AwsSdkCall(
+                    service='CognitoIdentityServiceProvider',
+                    action='adminCreateUser',
+                    parameters={
+                        'UserPoolId': cognito_user_pool.user_pool_id,
+                        'Username': user,
+                        'TemporaryPassword': config_yaml[
+                            'admin_temp_password'
+                        ]
+                    },
+                    physical_resource_id=cr.PhysicalResourceId.of(
+                        cognito_user_pool.user_pool_id)
+                )
             )
 
         # Output the service URL to CloudFormation outputs
