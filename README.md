@@ -4,7 +4,7 @@ Starting point is the [Application Load Balancer example](https://github.com/aws
 
 This work is heavily based on the [Jupyter ECS Service CDK project](https://github.com/avishayil/jupyter-ecs-service), under an [Apache 2.0 License](https://github.com/sebranchett/serverless-jupyter-python/blob/main/LICENSE). See also [Avishay Bar's blog post](https://avishayil.medium.com/serverless-jupyter-hub-with-aws-fargate-and-cdk-2160154187a1).
 
-### Pre-requisites
+## Pre-requisites
 
 - An AWS account with aws-cdk set up on your local machine. See [Setting up the environment](https://github.com/sebranchett/ec2-instance-python#setting-up-the-environment)
 - Python 3.6 or later with requirements installed. See [Using this example](https://github.com/sebranchett/ec2-instance-python#using-this-example)
@@ -24,12 +24,19 @@ This work is heavily based on the [Jupyter ECS Service CDK project](https://gith
   ```
   Please add this ARN and the image tag to the `config.yaml` file.
 
+## Users
+If you wish to add users, do this in the Cognito user pool. JupyterHub will accept them as standard users.
+
+If you wish to remove a user, do this in Cognito, then remove them in JupyterHub too. Also think about what to do with the data they leave behind.
+
+If you want to change the status of a user, from standard to administrator or from administrator to standard, do this in JupyterHub.
+
 ## ToDo
 - Add EFS.
 - Add Fargate Spawner.
 - Add Pluto single user.
 - Add NetID authentication.
-- Think about allowed users/authorisation.
+- Remove initial password, once NetID is working.
 - Kill idle processes.
 - Make tests.
 - Refactor.

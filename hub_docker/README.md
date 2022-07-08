@@ -19,10 +19,10 @@ aws ecr describe-repositories
 ```
 The ARN and URI are different and you will need both: the URI is used here; the ARN is used in your config.yaml.
 
-## Add admin user(s) and allowed users
+## Add admin user(s) and initial users
 The file `admin` should contain the JupyterHub administrator user names, one per line.
 
-A file called `allowed_users` should contain the user names of all the regular users, one per line. See the `example_allowed_users` file.
+A file called `initial_users` can be used to set up the initial group of regular users. It should contain the user names, one per line. See the `example_initial_users` file. Note that these users will be handled by AWS Cognito and not in the Docker image.
 
 Please [read this](https://jupyterhub.readthedocs.io/en/stable/getting-started/authenticators-users-basics.html#authentication-and-user-basics) for explanation and warnings.
 
@@ -50,3 +50,6 @@ You can now push your Docker image to ECR as follows:
 ```
 docker push <ecr_repository_uri>
 ```
+
+## Next time
+If you want to update the Docker image you use for JupyterHub, you can copy and paste the 4 commands you need by opening the ECR management console, selecting your repository and clicking on 'View push commands'.
