@@ -40,3 +40,4 @@ If you want to change the status of a user, from standard to administrator or fr
 - Kill idle processes.
 - Make tests.
 - Refactor.
+- Add Bootstrap for KMS key, EFS, ECR, SSL certificate?

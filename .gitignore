@@ -1,5 +1,7 @@
 .venv/
 .vscode/
+__init__.py
+__pycache__
 cdk.out/
 config.yaml
 hub_docker/initial_users
