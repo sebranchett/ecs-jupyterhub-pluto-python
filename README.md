@@ -41,3 +41,5 @@ If you want to change the status of a user, from standard to administrator or fr
 - Make tests.
 - Refactor.
 - Add Bootstrap for KMS key, EFS, ECR, SSL certificate?
+- Add repo creation to StableStack
+- Sort out the domain name

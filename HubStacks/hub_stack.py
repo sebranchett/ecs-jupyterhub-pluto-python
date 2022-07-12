@@ -4,8 +4,6 @@ import yaml
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elb,
-    aws_route53 as route53,
-    aws_route53_targets as route53_targets,
     aws_certificatemanager as acm,
     aws_cognito as cognito,
     custom_resources as cr,
@@ -15,8 +13,7 @@ from aws_cdk import (
     aws_logs as logs,
     aws_ecr as ecr,
     aws_efs as efs,
-    aws_kms as kms,
-    App, CfnOutput, Stack, RemovalPolicy
+    App, Stack, Fn
 )
 
 
@@ -30,57 +27,45 @@ class HubStack(Stack):
         base_name = config_yaml["base_name"]
         domain_prefix = config_yaml['domain_prefix']
         application_prefix = 'pluto-' + domain_prefix
-        hosted_zone_id = config_yaml['hosted_zone_id']
-        hosted_zone_name = config_yaml['hosted_zone_name']
         certificate_arn = config_yaml['certificate_arn']
         container_image_repository_arn = \
             config_yaml['container_image_repository_arn']
         container_image_tag = config_yaml['container_image_tag']
+        hosted_zone_name = config_yaml['hosted_zone_name']
 
         suffix_txt = "secure"
         suffix = f'{suffix_txt}'.lower()
+        domain_name = application_prefix + '/' + hosted_zone_name
 
-        vpc = ec2.Vpc(self, "VPC")
-
-        load_balancer = elb.ApplicationLoadBalancer(
-            self, f'{base_name}LoadBalancer',
-            vpc=vpc,
-            internet_facing=True
+        vpc = ec2.Vpc.from_lookup(
+            self, f'{base_name}VPC',
+            vpc_name="StableStack/VPC"
         )
 
-        hosted_zone = \
-            route53.PublicHostedZone.from_hosted_zone_attributes(
-                self,
-                f'{base_name}HostedZone',
-                hosted_zone_id=hosted_zone_id,
-                zone_name=hosted_zone_name
-            )
-
-        route53_record = route53.ARecord(
+        efs_security_group = ec2.SecurityGroup.from_lookup_by_name(
             self,
-            f'{base_name}ELBRecord',
-            zone=hosted_zone,
-            record_name=application_prefix,
-            target=route53.RecordTarget(alias_target=(
-                route53_targets.LoadBalancerTarget(
-                    load_balancer=load_balancer)))
+            f'{base_name}EFSSG',
+            security_group_name=f'{base_name}EFSSG',
+            vpc=vpc
         )
 
-        # User pool and user pool OAuth client
-        cognito_user_pool = cognito.UserPool(
+        cognito_user_pool = cognito.UserPool.from_user_pool_arn(
             self,
             f'{base_name}UserPool',
-            removal_policy=RemovalPolicy.DESTROY,
-            self_sign_up_enabled=False
+            Fn.importValue(f'{base_name}_cognito_user_pool_arn')
         )
 
-        cognito_user_pool_domain = cognito.UserPoolDomain(
+        load_balancer = elb.ApplicationLoadBalancer.from_lookup(
             self,
-            f'{base_name}UserPoolDomain',
-            cognito_domain=cognito.CognitoDomainOptions(
-                domain_prefix=application_prefix + '-' + suffix
-            ),
-            user_pool=cognito_user_pool
+            f'{base_name}LoadBalancer',
+            load_balancer_arn=Fn.import_value(f'{base_name}_load_balancer_arn')
+        )
+
+        hub_efs = efs.FileSystem.from_file_system_attributes(
+            self,
+            f'{base_name}EFS',
+            security_group=efs_security_group,
+            file_system_arn=Fn.import_value(f'{base_name}_file_system_arn')
         )
 
         cognito_app_client = cognito.UserPoolClient(
@@ -93,7 +78,7 @@ class HubStack(Stack):
             prevent_user_existence_errors=True,
             o_auth=cognito.OAuthSettings(
                 callback_urls=[
-                    'https://' + route53_record.domain_name +
+                    'https://' + domain_name +
                     '/hub/oauth_callback'
                 ],
                 flows=cognito.OAuthFlows(
@@ -126,10 +111,25 @@ class HubStack(Stack):
                 'UserPoolClient.ClientSecret'
             )
 
+        cognito_user_pool_domain = cognito.UserPoolDomain(
+            self,
+            f'{base_name}UserPoolDomain',
+            cognito_domain=cognito.CognitoDomainOptions(
+                domain_prefix=application_prefix + '-' + suffix
+            ),
+            user_pool=cognito_user_pool
+        )
+
         # ECS task roles and definition
         ecs_task_execution_role = iam.Role(
             self, f'{base_name}TaskExecutionRole',
             assumed_by=iam.ServicePrincipal('ecs-tasks.amazonaws.com')
+        )
+
+        efs_mount_point = ecs.MountPoint(
+            container_path='/home',
+            source_volume='efs-volume',
+            read_only=False
         )
 
         managed_policy_arn = 'arn:aws:iam::aws:policy/service-role/' \
@@ -210,7 +210,7 @@ class HubStack(Stack):
             ),
             environment={
                 'OAUTH_CALLBACK_URL':
-                    'https://' + route53_record.domain_name +
+                    'https://' + domain_name +
                     '/hub/oauth_callback',
                 'OAUTH_CLIENT_ID': cognito_app_client.user_pool_client_id,
                 'OAUTH_CLIENT_SECRET': cognito_user_pool_client_secret,
@@ -308,46 +308,10 @@ class HubStack(Stack):
                 )
             )
 
-        # EFS FileSystem
-
-        efs_security_group = ec2.SecurityGroup(
-            self,
-            f'{base_name}EFSSG',
-            vpc=vpc,
-            description='Shared filesystem security group',
-            allow_all_outbound=True
-        )
-
         efs_security_group.connections.allow_from(
             ecs_service_security_group,
             port_range=ec2.Port.tcp(2049),
             description='Allow EFS from ECS Service containers'
-        )
-
-        # SEB kms.Key.from_key_arn(self, f'{base_name}EFSCMK', key_arn='')
-        efs_cmk = kms.Key(
-            self,
-            f'{base_name}EFSCMK',
-            alias='ecs-efs-cmk',
-            description='CMK for EFS Encryption',
-            enable_key_rotation=True,
-            removal_policy=RemovalPolicy.DESTROY
-        )
-
-        hub_efs = efs.FileSystem(
-            self,
-            f'{base_name}EFS',
-            vpc=vpc,
-            security_group=efs_security_group,
-            encrypted=True,
-            kms_key=efs_cmk,
-            removal_policy=RemovalPolicy.DESTROY
-        )
-
-        efs_mount_point = ecs.MountPoint(
-            container_path='/home',
-            source_volume='efs-volume',
-            read_only=False
         )
 
         ecs_task_definition.add_volume(
@@ -358,10 +322,3 @@ class HubStack(Stack):
         )
 
         ecs_container.add_mount_points(efs_mount_point)
-
-        # Output the service URL to CloudFormation outputs
-        CfnOutput(
-            self,
-            f'{base_name}HubURL',
-            value='https://' + route53_record.domain_name
-        )
