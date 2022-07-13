@@ -18,8 +18,8 @@ from aws_cdk import (
 
 
 class HubStack(Stack):
-    def __init__(self, app: App, id: str) -> None:
-        super().__init__(app, id)
+    def __init__(self, app: App, id: str, **kwargs) -> None:
+        super().__init__(app, id, **kwargs)
 
         # General configuration variables
         config_yaml = yaml.load(
@@ -39,7 +39,7 @@ class HubStack(Stack):
 
         vpc = ec2.Vpc.from_lookup(
             self, f'{base_name}VPC',
-            vpc_name="StableStack/VPC"
+            vpc_name="FrameStack/VPC"
         )
 
         efs_security_group = ec2.SecurityGroup.from_lookup_by_name(
@@ -49,23 +49,31 @@ class HubStack(Stack):
             vpc=vpc
         )
 
+        user_pool_arn_name = f'{base_name}_cognito_user_pool_arn'
+        user_pool_arn = Fn.importValue(user_pool_arn_name)
         cognito_user_pool = cognito.UserPool.from_user_pool_arn(
             self,
             f'{base_name}UserPool',
-            Fn.importValue(f'{base_name}_cognito_user_pool_arn')
+            user_pool_arn
         )
 
+        load_balancer_arn = Fn.import_value(
+            '{base_name}_load_balancer_arn'
+        )
         load_balancer = elb.ApplicationLoadBalancer.from_lookup(
             self,
             f'{base_name}LoadBalancer',
-            load_balancer_arn=Fn.import_value(f'{base_name}_load_balancer_arn')
+            load_balancer_arn=load_balancer_arn
         )
 
+        file_system_arn = Fn.import_value(
+            f'{base_name}_file_system_arn'
+        )
         hub_efs = efs.FileSystem.from_file_system_attributes(
             self,
             f'{base_name}EFS',
             security_group=efs_security_group,
-            file_system_arn=Fn.import_value(f'{base_name}_file_system_arn')
+            file_system_arn=file_system_arn
         )
 
         cognito_app_client = cognito.UserPoolClient(

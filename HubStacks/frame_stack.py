@@ -13,9 +13,9 @@ from aws_cdk import (
 )
 
 
-class StableStack(Stack):
-    def __init__(self, app: App, id: str) -> None:
-        super().__init__(app, id)
+class FrameStack(Stack):
+    def __init__(self, app: App, id: str, **kwargs) -> None:
+        super().__init__(app, id, **kwargs)
 
         # General configuration variables
         config_yaml = yaml.load(

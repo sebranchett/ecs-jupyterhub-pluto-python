@@ -3,7 +3,7 @@ import os
 
 from aws_cdk import App, Environment
 
-from HubStacks.stable_stack import StableStack
+from HubStacks.frame_stack import FrameStack
 from HubStacks.hub_stack import HubStack
 
 default_env = Environment(
@@ -12,7 +12,7 @@ default_env = Environment(
 )
 
 app = App()
-StableStack(app, "StableStack", env=default_env)
+FrameStack(app, "FrameStack", env=default_env)
 HubStack(app, "HubStack", env=default_env)
 
 app.synth()
