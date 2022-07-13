@@ -22,7 +22,6 @@ class FrameStack(Stack):
             open('config.yaml'), Loader=yaml.FullLoader)
         base_name = config_yaml["base_name"]
         domain_prefix = config_yaml['domain_prefix']
-        application_prefix = 'pluto-' + domain_prefix
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
@@ -46,7 +45,7 @@ class FrameStack(Stack):
             self,
             f'{base_name}ELBRecord',
             zone=hosted_zone,
-            record_name=application_prefix,
+            record_name=domain_prefix,
             target=route53.RecordTarget(alias_target=(
                 route53_targets.LoadBalancerTarget(
                     load_balancer=load_balancer)))
@@ -96,29 +95,19 @@ class FrameStack(Stack):
             value='https://' + route53_record.domain_name
         )
 
-        CfnOutput(
+        # Define this hear to prevent cyclic reference
+        ecs_service_security_group = ec2.SecurityGroup(
             self,
-            f'{base_name}_cognito_user_pool_id',
-            value=cognito_user_pool.user_pool_id
+            f'{base_name}ServiceSG',
+            vpc=vpc,
+            description='Hub ECS service containers security group',
+            allow_all_outbound=True
         )
 
-        CfnOutput(
-            self,
-            f'{base_name}_cognito_user_pool_arn',
-            value=cognito_user_pool.user_pool_arn,
-            export_name=f'{base_name}_cognito_user_pool_arn'
-        )
-
-        CfnOutput(
-            self,
-            f'{base_name}_load_balancer_arn',
-            value=load_balancer.load_balancer_arn,
-            export_name=f'{base_name}_load_balancer_arn'
-        )
-
-        CfnOutput(
-            self,
-            f'{base_name}_file_system_arn',
-            value=file_system.file_system_arn,
-            export_name=f'{base_name}_file_system_arn'
-        )
+        # Output resources needed by HubStack
+        self.vpc = vpc
+        self.cognito_user_pool = cognito_user_pool
+        self.load_balancer = load_balancer
+        self.file_system = file_system
+        self.efs_security_group = efs_security_group
+        self.ecs_service_security_group = ecs_service_security_group

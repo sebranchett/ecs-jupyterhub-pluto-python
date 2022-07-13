@@ -32,7 +32,6 @@ If you wish to remove a user, do this in Cognito, then remove them in JupyterHub
 If you want to change the status of a user, from standard to administrator or from administrator to standard, do this in JupyterHub.
 
 ## ToDo
-- Add EFS.
 - Add Fargate Spawner.
 - Add Pluto single user.
 - Add NetID authentication.
@@ -42,4 +41,3 @@ If you want to change the status of a user, from standard to administrator or fr
 - Refactor.
 - Add Bootstrap for KMS key, EFS, ECR, SSL certificate?
 - Add repo creation to FrameStack
-- Sort out the domain name

@@ -12,13 +12,16 @@ from aws_cdk import (
     aws_iam as iam,
     aws_logs as logs,
     aws_ecr as ecr,
-    aws_efs as efs,
-    App, Stack, Fn
+    App, Stack
 )
 
 
 class HubStack(Stack):
-    def __init__(self, app: App, id: str, **kwargs) -> None:
+    def __init__(
+        self, app: App, id: str,
+        vpc, cognito_user_pool, load_balancer, file_system,
+        efs_security_group, ecs_service_security_group, **kwargs
+    ) -> None:
         super().__init__(app, id, **kwargs)
 
         # General configuration variables
@@ -36,45 +39,6 @@ class HubStack(Stack):
         suffix_txt = "secure"
         suffix = f'{suffix_txt}'.lower()
         domain_name = application_prefix + '/' + hosted_zone_name
-
-        vpc = ec2.Vpc.from_lookup(
-            self, f'{base_name}VPC',
-            vpc_name="FrameStack/VPC"
-        )
-
-        efs_security_group = ec2.SecurityGroup.from_lookup_by_name(
-            self,
-            f'{base_name}EFSSG',
-            security_group_name=f'{base_name}EFSSG',
-            vpc=vpc
-        )
-
-        user_pool_arn_name = f'{base_name}_cognito_user_pool_arn'
-        user_pool_arn = Fn.importValue(user_pool_arn_name)
-        cognito_user_pool = cognito.UserPool.from_user_pool_arn(
-            self,
-            f'{base_name}UserPool',
-            user_pool_arn
-        )
-
-        load_balancer_arn = Fn.import_value(
-            '{base_name}_load_balancer_arn'
-        )
-        load_balancer = elb.ApplicationLoadBalancer.from_lookup(
-            self,
-            f'{base_name}LoadBalancer',
-            load_balancer_arn=load_balancer_arn
-        )
-
-        file_system_arn = Fn.import_value(
-            f'{base_name}_file_system_arn'
-        )
-        hub_efs = efs.FileSystem.from_file_system_attributes(
-            self,
-            f'{base_name}EFS',
-            security_group=efs_security_group,
-            file_system_arn=file_system_arn
-        )
 
         cognito_app_client = cognito.UserPoolClient(
             self,
@@ -247,14 +211,6 @@ class HubStack(Stack):
             vpc=vpc
         )
 
-        ecs_service_security_group = ec2.SecurityGroup(
-            self,
-            f'{base_name}ServiceSG',
-            vpc=vpc,
-            description='Hub ECS service containers security group',
-            allow_all_outbound=True
-        )
-
         ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}Service',
             cluster=ecs_cluster,
@@ -325,7 +281,7 @@ class HubStack(Stack):
         ecs_task_definition.add_volume(
             name='efs-volume',
             efs_volume_configuration=ecs.EfsVolumeConfiguration(
-                file_system_id=hub_efs.file_system_id
+                file_system_id=file_system.file_system_id
             )
         )
 

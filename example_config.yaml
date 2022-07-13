@@ -4,7 +4,7 @@ base_name: 'some-basename'
 hosted_zone_id: 'XXXXXXXXXXXXXXXXXXXXX'
 hosted_zone_name: 'some-domain.com'
 
-domain_prefix: 'dev'
+domain_prefix: 'pluto-dev'
 certificate_arn: 'arn:aws:acm:<region>:<account>:certificate/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
 container_image_repository_arn: 'arn:aws:ecr:<region>:<account>:repository/<repo_name>'
 container_image_tag: 'latest'

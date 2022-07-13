@@ -12,7 +12,16 @@ default_env = Environment(
 )
 
 app = App()
-FrameStack(app, "FrameStack", env=default_env)
-HubStack(app, "HubStack", env=default_env)
+frame = FrameStack(app, "FrameStack", env=default_env)
+HubStack(
+    app, "HubStack",
+    vpc=frame.vpc,
+    cognito_user_pool=frame.cognito_user_pool,
+    load_balancer=frame.load_balancer,
+    file_system=frame.file_system,
+    efs_security_group=frame.efs_security_group,
+    ecs_service_security_group=frame.ecs_service_security_group,
+    env=default_env
+)
 
 app.synth()
