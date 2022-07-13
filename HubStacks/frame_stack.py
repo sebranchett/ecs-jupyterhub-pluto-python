@@ -95,6 +95,13 @@ class FrameStack(Stack):
             value='https://' + route53_record.domain_name
         )
 
+        # Output Cognito user pool id for SAML interface
+        CfnOutput(
+            self,
+            f'{base_name}UserPoolID',
+            value=cognito_user_pool.user_pool_id
+        )
+
         # Define this hear to prevent cyclic reference
         ecs_service_security_group = ec2.SecurityGroup(
             self,
