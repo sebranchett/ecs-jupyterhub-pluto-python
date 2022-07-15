@@ -38,7 +38,7 @@ class HubStack(Stack):
 
         suffix_txt = "secure"
         suffix = f'{suffix_txt}'.lower()
-        domain_name = application_prefix + '/' + hosted_zone_name
+        domain_name = application_prefix + '.' + hosted_zone_name
 
         cognito_app_client = cognito.UserPoolClient(
             self,

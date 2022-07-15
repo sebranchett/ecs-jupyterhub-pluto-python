@@ -31,6 +31,8 @@ If you wish to remove a user, do this in Cognito, then remove them in JupyterHub
 
 If you want to change the status of a user, from standard to administrator or from administrator to standard, do this in JupyterHub.
 
+If you destroy the HubStack, the Cognito users will not be deleted. You need to delete them by hand, otherwise deploying the HubStack will fail with a message that the user already exists.
+
 ## ToDo
 - Add Fargate Spawner.
 - Add Pluto single user.

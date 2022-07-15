@@ -22,10 +22,12 @@ class FrameStack(Stack):
             open('config.yaml'), Loader=yaml.FullLoader)
         base_name = config_yaml["base_name"]
         domain_prefix = config_yaml['domain_prefix']
+        application_prefix = 'pluto-' + domain_prefix
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
         vpc = ec2.Vpc(self, "VPC")
+        # SEB , max_azs=2)
 
         load_balancer = elb.ApplicationLoadBalancer(
             self, f'{base_name}LoadBalancer',
@@ -45,7 +47,7 @@ class FrameStack(Stack):
             self,
             f'{base_name}ELBRecord',
             zone=hosted_zone,
-            record_name=domain_prefix,
+            record_name=application_prefix,
             target=route53.RecordTarget(alias_target=(
                 route53_targets.LoadBalancerTarget(
                     load_balancer=load_balancer)))
