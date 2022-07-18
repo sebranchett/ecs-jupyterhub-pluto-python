@@ -4,6 +4,8 @@ Starting point is the [Application Load Balancer example](https://github.com/aws
 
 This work is heavily based on the [Jupyter ECS Service CDK project](https://github.com/avishayil/jupyter-ecs-service), under an [Apache 2.0 License](https://github.com/sebranchett/serverless-jupyter-python/blob/main/LICENSE). See also [Avishay Bar's blog post](https://avishayil.medium.com/serverless-jupyter-hub-with-aws-fargate-and-cdk-2160154187a1).
 
+The adaptation for Pluto is inspired by [plutohub-juliacon2021](https://github.com/barche/plutohub-juliacon2021) (no license supplied) and [pluto-on-jupyterlab](https://github.com/pankgeorg/pluto-on-jupyterlab), under an [Unlicense license](https://github.com/pankgeorg/pluto-on-jupyterlab/blob/master/LICENSE) and uses this [Pluto server](https://github.com/fonsp/pluto-on-jupyterlab), under an [Unlicense license](https://github.com/fonsp/pluto-on-jupyterlab/blob/master/LICENSE).
+
 ## Pre-requisites
 
 - An AWS account with aws-cdk set up on your local machine. See [Setting up the environment](https://github.com/sebranchett/ec2-instance-python#setting-up-the-environment)
