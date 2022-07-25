@@ -31,7 +31,7 @@ Make sure your Docker Desktop is active and then build and tag an image:
 ```
 docker build -t <your_username>/<serverless_hub>:<version_number> .
 ```
-You can test this image on your local computer, if you like. Now give it a tag for the ECR repository:
+Now give it a tag for the ECR repository:
 ```
 docker tag <your_username>/<serverless_hub>:<version_number> <ecr_repository_uri>
 ```
