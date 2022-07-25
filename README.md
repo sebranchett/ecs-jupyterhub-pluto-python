@@ -18,6 +18,7 @@ The adaptation for Pluto is inspired by [plutohub-juliacon2021](https://github.c
   *WARNING:* Validating a certificate can take 30 minutes to hours! Validation will time out after 72 hours.
   
   If it takes longer than 30 minutes, make sure that your Registered domain's 'Name servers' are those named in the Hosted Zone's 'NS' record. [See here](https://stackoverflow.com/a/68703299/13237339).
+- A cognito user pool. If you do not yet have a suitable user pool, you can use the separate stack in the `prerequisites` folder to create one. Please collect the UserPool ID and add it to the `config.yaml` file.
 - A private repository on Amazon Elastic Container Registry (ECR), in the same region you want your  infrastructure. This repository should contain a JupyterHub image. See the README file in hub_docker directory.
 
   You can find the ARN of your image repository using the command line:
