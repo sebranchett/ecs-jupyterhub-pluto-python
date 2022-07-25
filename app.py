@@ -16,7 +16,6 @@ frame = FrameStack(app, "FrameStack", env=default_env)
 HubStack(
     app, "HubStack",
     vpc=frame.vpc,
-    cognito_user_pool=frame.cognito_user_pool,
     load_balancer=frame.load_balancer,
     file_system=frame.file_system,
     efs_security_group=frame.efs_security_group,

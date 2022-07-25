@@ -6,7 +6,6 @@ from aws_cdk import (
     aws_elasticloadbalancingv2 as elb,
     aws_route53 as route53,
     aws_route53_targets as route53_targets,
-    aws_cognito as cognito,
     aws_efs as efs,
     aws_kms as kms,
     App, CfnOutput, Stack, RemovalPolicy
@@ -26,8 +25,7 @@ class FrameStack(Stack):
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
-        vpc = ec2.Vpc(self, "VPC")
-        # SEB , max_azs=2)
+        vpc = ec2.Vpc(self, "VPC", max_azs=2)
 
         load_balancer = elb.ApplicationLoadBalancer(
             self, f'{base_name}LoadBalancer',
@@ -51,14 +49,6 @@ class FrameStack(Stack):
             target=route53.RecordTarget(alias_target=(
                 route53_targets.LoadBalancerTarget(
                     load_balancer=load_balancer)))
-        )
-
-        # User pool and user pool OAuth client
-        cognito_user_pool = cognito.UserPool(
-            self,
-            f'{base_name}UserPool',
-            removal_policy=RemovalPolicy.DESTROY,
-            self_sign_up_enabled=False
         )
 
         # EFS FileSystem
@@ -97,13 +87,6 @@ class FrameStack(Stack):
             value='https://' + route53_record.domain_name
         )
 
-        # Output Cognito user pool id for SAML interface
-        CfnOutput(
-            self,
-            f'{base_name}UserPoolID',
-            value=cognito_user_pool.user_pool_id
-        )
-
         # Define this hear to prevent cyclic reference
         ecs_service_security_group = ec2.SecurityGroup(
             self,
@@ -115,7 +98,6 @@ class FrameStack(Stack):
 
         # Output resources needed by HubStack
         self.vpc = vpc
-        self.cognito_user_pool = cognito_user_pool
         self.load_balancer = load_balancer
         self.file_system = file_system
         self.efs_security_group = efs_security_group

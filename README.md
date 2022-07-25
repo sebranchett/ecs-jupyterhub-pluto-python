@@ -37,7 +37,6 @@ If you destroy the HubStack, the Cognito users will not be deleted. You need to 
 
 ## ToDo
 - Add Fargate Spawner.
-- Add Pluto single user.
 - Add NetID authentication.
 - Remove initial password, once NetID is working.
 - Kill idle processes.

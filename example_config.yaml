@@ -9,6 +9,7 @@ certificate_arn: 'arn:aws:acm:<region>:<account>:certificate/XXXXXXXX-XXXX-XXXX-
 container_image_repository_arn: 'arn:aws:ecr:<region>:<account>:repository/<repo_name>'
 container_image_tag: 'latest'
 
+cognito_user_pool_id: '<region>_<hash>'
 oauth_login_service_name: 'AWS Cognito'
 oauth_login_username_key: 'username'
 oauth_scope: ['openid', 'profile']

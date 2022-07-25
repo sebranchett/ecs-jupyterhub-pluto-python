@@ -19,8 +19,8 @@ from aws_cdk import (
 class HubStack(Stack):
     def __init__(
         self, app: App, id: str,
-        vpc, cognito_user_pool, load_balancer, file_system,
-        efs_security_group, ecs_service_security_group, **kwargs
+        vpc, load_balancer, file_system, efs_security_group,
+        ecs_service_security_group, **kwargs
     ) -> None:
         super().__init__(app, id, **kwargs)
 
@@ -28,6 +28,7 @@ class HubStack(Stack):
         config_yaml = yaml.load(
             open('config.yaml'), Loader=yaml.FullLoader)
         base_name = config_yaml["base_name"]
+        cognito_user_pool_id = config_yaml['cognito_user_pool_id']
         domain_prefix = config_yaml['domain_prefix']
         application_prefix = 'pluto-' + domain_prefix
         certificate_arn = config_yaml['certificate_arn']
@@ -40,6 +41,9 @@ class HubStack(Stack):
         suffix = f'{suffix_txt}'.lower()
         domain_name = application_prefix + '.' + hosted_zone_name
 
+        cognito_user_pool = cognito.UserPool.from_user_pool_id(
+            self, "UserPoolID", cognito_user_pool_id
+        )
         cognito_app_client = cognito.UserPoolClient(
             self,
             f'{base_name}UserPoolClient',
