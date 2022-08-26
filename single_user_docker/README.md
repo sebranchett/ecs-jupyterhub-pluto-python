@@ -21,3 +21,34 @@ In a browser, navigate to:
 ```
 http://localhost:8888/?token=<long token hash>
 ```
+
+Once you are happy with the Docker image, you can upload it to AWS ECR in the same way as for the JupyterHub Docker image:
+
+First make sure you are logged into you AWS account.
+
+Create an ECR repository:
+```
+aws ecr create-repository --repository-name <repo_name>
+```
+`<repo_name>` could be 'single-user-jupyterlab-pluto', for example.
+
+Find the URI of your repository:
+```
+aws ecr describe-repositories
+```
+
+Give the image a tag for the ECR repository:
+```
+docker tag local <ecr_repository_uri>
+```
+
+Allow Docker to access your ECR repository:
+
+```
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <ecr_repository_uri>
+```
+You should receive the message: Login Succeeded.
+
+Push your Docker image to ECR:
+```
+docker push <ecr_repository_uri>

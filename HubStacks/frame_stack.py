@@ -87,7 +87,7 @@ class FrameStack(Stack):
             value='https://' + route53_record.domain_name
         )
 
-        # Define this hear to prevent cyclic reference
+        # Define this here to prevent cyclic reference
         ecs_service_security_group = ec2.SecurityGroup(
             self,
             f'{base_name}ServiceSG',
