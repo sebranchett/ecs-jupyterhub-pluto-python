@@ -12,4 +12,4 @@ USER ${NB_USER}
 RUN julia -e "import Pkg; Pkg.add([\"PlutoUI\", \"Pluto\"]); Pkg.precompile()"
 
 RUN pip3 install jupyter-server-proxy && \
-    pip3 install git+https://github.com/fonsp/pluto-on-jupyterlab.git
+    pip3 install git+https://github.com/sebranchett/pluto-on-jupyterlab.git
