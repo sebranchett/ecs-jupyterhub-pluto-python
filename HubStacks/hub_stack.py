@@ -161,6 +161,24 @@ class HubStack(Stack):
             task_role=ecs_task_role
         )
 
+        # ECS cluster
+        ecs_cluster = ecs.Cluster(
+            self, f'{base_name}Cluster',
+            vpc=vpc
+        )
+
+        # Make a string of the private subnets
+        subnet_selection = ec2.SubnetSelection(
+                               subnet_type=vpc.select_subnets(
+                                   subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT
+                               )
+                           )
+        subnets_string = ''
+        for subnet in subnet_selection.subnets:
+            subnets_string = subnets_string + ', ' + subnet.subnet_id
+        if len(subnets_string > 2):
+            subnets_string = subnets_string[2:]  # remove leading ', '
+
         # ECS Container definition, service, target group and ALB attachment
         repository = ecr.Repository.from_repository_arn(
             self, "Repo", container_image_repository_arn
@@ -205,15 +223,24 @@ class HubStack(Stack):
                     'https://' + cognito_user_pool_domain.domain_name +
                     '.auth.' + self.region +
                     '.amazoncognito.com/oauth2/userInfo',
-                'OAUTH_SCOPE': ','.join(config_yaml['oauth_scope'])
+                'OAUTH_SCOPE': ','.join(config_yaml['oauth_scope']),
+                'FARGATE_SPAWNER_REGION':
+                    self.region,
+                'FARGATE_SPAWNER_ECS_HOST':
+                    'ecs.' + self.region + 'amazonaws.com',
+                'FARGATE_SPAWNER_CLUSTER':
+                    ecs_cluster.cluster_name,
+                'FARGATE_SPAWNER_TASK_DEFINITION':
+                    '',
+                'FARGATE_SPAWNER_TASK_ROLE_ARN':
+                    ecs_task_role.role_arn,
+                'FARGATE_SPAWNER_SECURITY_GROUPS':
+                    '[' + ecs_service_security_group.security_group_id + ']',
+                'FARGATE_SPAWNER_SUBNETS':
+                    '[' + subnets_string + ']'
             }
         )
-
-        # ECS cluster
-        ecs_cluster = ecs.Cluster(
-            self, f'{base_name}Cluster',
-            vpc=vpc
-        )
+# TODO: check FARGATE_SPAWNER_ECS_HOST
 
         ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}Service',
