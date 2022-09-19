@@ -168,16 +168,12 @@ class HubStack(Stack):
         )
 
         # Make a string of the private subnets
-        subnet_selection = ec2.SubnetSelection(
-                               subnet_type=vpc.select_subnets(
-                                   subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT
-                               )
-                           )
         subnets_string = ''
-        for subnet in subnet_selection.subnets:
+        for subnet in vpc.private_subnets:
             subnets_string = subnets_string + ', ' + subnet.subnet_id
-        if len(subnets_string > 2):
+        if len(subnets_string) > 2:
             subnets_string = subnets_string[2:]  # remove leading ', '
+        # TODO: This could be improved
 
         # ECS Container definition, service, target group and ALB attachment
         repository = ecr.Repository.from_repository_arn(
@@ -241,6 +237,7 @@ class HubStack(Stack):
             }
         )
 # TODO: check FARGATE_SPAWNER_ECS_HOST
+# TODO: add FARGATE_SPAWNER_TASK_DEFINITION
 
         ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}Service',
