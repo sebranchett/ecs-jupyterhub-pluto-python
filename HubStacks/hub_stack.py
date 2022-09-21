@@ -181,7 +181,8 @@ class HubStack(Stack):
 
         # single user container task definition
         single_user_repository = ecr.Repository.from_repository_arn(
-            self, "Repo", single_user_container_image_repository_arn
+            self, "SingleUserRepo",
+            single_user_container_image_repository_arn
         )
 
         fargate_task_definition = ecs.FargateTaskDefinition(
