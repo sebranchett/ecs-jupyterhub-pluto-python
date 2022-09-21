@@ -32,9 +32,13 @@ class HubStack(Stack):
         domain_prefix = config_yaml['domain_prefix']
         application_prefix = 'pluto-' + domain_prefix
         certificate_arn = config_yaml['certificate_arn']
-        container_image_repository_arn = \
-            config_yaml['container_image_repository_arn']
-        container_image_tag = config_yaml['container_image_tag']
+        hub_container_image_repository_arn = \
+            config_yaml['hub_container_image_repository_arn']
+        hub_container_image_tag = config_yaml['hub_container_image_tag']
+        single_user_container_image_repository_arn = \
+            config_yaml['single_user_container_image_repository_arn']
+        single_user_container_image_tag = \
+            config_yaml['single_user_container_image_tag']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
         suffix_txt = "secure"
@@ -95,6 +99,14 @@ class HubStack(Stack):
             ),
             user_pool=cognito_user_pool
         )
+
+        # Make a string of the private subnets
+        subnets_string = ''
+        for subnet in vpc.private_subnets:
+            subnets_string = subnets_string + ', ' + subnet.subnet_id
+        if len(subnets_string) > 2:
+            subnets_string = subnets_string[2:]  # remove leading ', '
+        # TODO: This could be improved
 
         # ECS task roles and definition
         ecs_task_execution_role = iam.Role(
@@ -167,24 +179,41 @@ class HubStack(Stack):
             vpc=vpc
         )
 
-        # Make a string of the private subnets
-        subnets_string = ''
-        for subnet in vpc.private_subnets:
-            subnets_string = subnets_string + ', ' + subnet.subnet_id
-        if len(subnets_string) > 2:
-            subnets_string = subnets_string[2:]  # remove leading ', '
-        # TODO: This could be improved
+        # single user container task definition
+        single_user_repository = ecr.Repository.from_repository_arn(
+            self, "Repo", single_user_container_image_repository_arn
+        )
 
-        # ECS Container definition, service, target group and ALB attachment
-        repository = ecr.Repository.from_repository_arn(
-            self, "Repo", container_image_repository_arn
+        fargate_task_definition = ecs.FargateTaskDefinition(
+            self, "TaskDefinition",
+            cpu=512,
+            memory_limit_mib=4096
+        )
+        fargate_task_definition.add_container(
+            "SingleUserContainer",
+            image=ecs.ContainerImage.from_ecr_repository(
+                repository=single_user_repository,
+                tag=single_user_container_image_tag
+            ),
+            privileged=False,
+            port_mappings=[
+                ecs.PortMapping(container_port=8888)
+            ],
+            logging=ecs.LogDrivers.aws_logs(
+                stream_prefix="FargateService"
+            )
+        )
+
+        # hub container task definition
+        hub_repository = ecr.Repository.from_repository_arn(
+            self, "Repo", hub_container_image_repository_arn
         )
 
         ecs_container = ecs_task_definition.add_container(
             f'{base_name}Container',
             image=ecs.ContainerImage.from_ecr_repository(
-                repository=repository,
-                tag=container_image_tag
+                repository=hub_repository,
+                tag=hub_container_image_tag
             ),
             privileged=False,
             port_mappings=[
@@ -227,7 +256,7 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_CLUSTER':
                     ecs_cluster.cluster_name,
                 'FARGATE_SPAWNER_TASK_DEFINITION':
-                    '',
+                    fargate_task_definition.task_definition_arn,
                 'FARGATE_SPAWNER_TASK_ROLE_ARN':
                     ecs_task_role.role_arn,
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
@@ -237,7 +266,6 @@ class HubStack(Stack):
             }
         )
 # TODO: check FARGATE_SPAWNER_ECS_HOST
-# TODO: add FARGATE_SPAWNER_TASK_DEFINITION
 
         ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}Service',
