@@ -269,6 +269,12 @@ class HubStack(Stack):
                         'Username': user,
                         'TemporaryPassword': config_yaml[
                             'admin_temp_password'
+                        ],
+                        'UserAttributes': [
+                            {
+                                'Name': 'preferred_username',
+                                'Value': user
+                            }
                         ]
                     },
                     physical_resource_id=cr.PhysicalResourceId.of(
