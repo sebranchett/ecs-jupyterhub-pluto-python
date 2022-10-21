@@ -33,7 +33,9 @@ c.OAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 c.LocalGenericOAuthenticator.auto_login = True
 c.LocalGenericOAuthenticator.create_system_users = True
 c.LocalGenericOAuthenticator.add_user_cmd = [
-    'adduser', '-q', '--gecos', '', '--disabled-password', '--force-badname'
+    'adduser', '-q', '--gecos', '',
+    '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)', 
+    '--disabled-password', '--force-badname'
 ]
 
 c.LocalGenericOAuthenticator.login_service = os.environ.get(
