@@ -30,11 +30,20 @@ c.OAuthenticator.oauth_callback_url = os.environ.get('OAUTH_CALLBACK_URL')
 c.OAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.OAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 
+c.LocalGenericOAuthenticator.allowed_users = allowed_users = set()
+with open(join(root, 'allowed_users')) as f:
+    for line in f:
+        if not line:
+            continue
+        parts = line.split()
+        name = parts[0]
+        allowed_users.add(name)
+
 c.LocalGenericOAuthenticator.auto_login = True
 c.LocalGenericOAuthenticator.create_system_users = True
 c.LocalGenericOAuthenticator.add_user_cmd = [
     'adduser', '-q', '--gecos', '',
-    '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)', 
+    '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)',
     '--disabled-password', '--force-badname'
 ]
 

@@ -19,10 +19,10 @@ aws ecr describe-repositories
 ```
 The ARN and URI are different and you will need both: the URI is used here; the ARN is used in your config.yaml.
 
-## Add admin user(s) and initial users
+## Add admin user(s) and allowed users
 The file `admin` should contain the JupyterHub administrator user names, one per line.
 
-A file called `initial_users` can be used to set up the initial group of regular users. It should contain the user names, one per line. See the `example_initial_users` file. Note that these users will be handled by AWS Cognito and not in the Docker image.
+The file `allowed_users` should contain the user names, one per line, of all non-admin user who are allowed to access JupyterHub.
 
 Please [read this](https://jupyterhub.readthedocs.io/en/stable/getting-started/authenticators-users-basics.html#authentication-and-user-basics) for explanation and warnings.
 

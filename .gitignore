@@ -5,4 +5,5 @@ __pycache__
 cdk.out/
 config.yaml
 hub_docker/initial_users
+hub_docker/allowed_users
 cdk.context.json

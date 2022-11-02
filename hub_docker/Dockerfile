@@ -12,6 +12,7 @@ WORKDIR /srv/oauthenticator
 ENV OAUTHENTICATOR_DIR /srv/oauthenticator
 ADD jupyterhub_config.py jupyterhub_config.py
 ADD admins /srv/oauthenticator/admins
+ADD allowed_users /srv/oauthenticator/allowed_users
 RUN chmod 700 /srv/oauthenticator
 
 EXPOSE 8000
