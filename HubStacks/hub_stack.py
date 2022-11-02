@@ -166,6 +166,18 @@ class HubStack(Stack):
             self, "Repo", container_image_repository_arn
         )
 
+        allowed_users = set()
+        try:
+            with open('hub_docker/allowed_users') as fp:
+                for line in fp:
+                    if not line:
+                        continue
+                    parts = line.split()
+                    name = parts[0]
+                    allowed_users.add(name)
+        except IOError:
+            pass
+
         ecs_container = ecs_task_definition.add_container(
             f'{base_name}Container',
             image=ecs.ContainerImage.from_ecr_repository(
@@ -185,6 +197,7 @@ class HubStack(Stack):
                 log_retention=logs.RetentionDays.ONE_WEEK
             ),
             environment={
+                'ALLOWED_USERS': str(allowed_users),
                 'OAUTH_CALLBACK_URL':
                     'https://' + domain_name +
                     '/hub/oauth_callback',

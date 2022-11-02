@@ -31,15 +31,8 @@ c.OAuthenticator.oauth_callback_url = os.environ.get('OAUTH_CALLBACK_URL')
 c.OAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.OAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 
-allowed_users = set()
-with open(join(root, 'allowed_users')) as f:
-    for line in f:
-        if not line:
-            continue
-        parts = line.split()
-        name = parts[0]
-        allowed_users.add(name)
-allowed_users = set(re.findall(r"'([^']*)'", str(allowed_users)))
+allowed_users_string = os.environ.get('ALLOWED_USERS')
+allowed_users = set(re.findall(r"'([^']*)'", allowed_users_string))
 c.LocalGenericOAuthenticator.allowed_users = allowed_users
 
 c.LocalGenericOAuthenticator.auto_login = True
