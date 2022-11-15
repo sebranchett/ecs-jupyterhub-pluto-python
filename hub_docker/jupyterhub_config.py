@@ -2,6 +2,7 @@
 
 import os
 import sys
+import re
 from oauthenticator.generic import LocalGenericOAuthenticator
 
 join = os.path.join
@@ -30,10 +31,16 @@ c.OAuthenticator.oauth_callback_url = os.environ.get('OAUTH_CALLBACK_URL')
 c.OAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.OAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 
+allowed_users_string = os.environ.get('ALLOWED_USERS')
+allowed_users = set(re.findall(r"'([^']*)'", allowed_users_string))
+c.LocalGenericOAuthenticator.allowed_users = allowed_users
+
 c.LocalGenericOAuthenticator.auto_login = True
 c.LocalGenericOAuthenticator.create_system_users = True
 c.LocalGenericOAuthenticator.add_user_cmd = [
-    'adduser', '-q', '--gecos', '', '--disabled-password', '--force-badname'
+    'adduser', '-q', '--gecos', '',
+    '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)',
+    '--disabled-password', '--force-badname'
 ]
 
 c.LocalGenericOAuthenticator.login_service = os.environ.get(

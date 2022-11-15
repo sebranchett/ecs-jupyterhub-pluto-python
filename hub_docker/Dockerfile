@@ -1,8 +1,9 @@
-FROM jupyterhub/jupyterhub
+FROM jupyterhub/jupyterhub:2.3.1
 
 LABEL Project Jupyter <ipython-dev@scipy.org>
 
 # Install oauthenticator from git
+RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install oauthenticator notebook
 
 # Create oauthenticator directory and put necessary files in it
@@ -11,6 +12,7 @@ WORKDIR /srv/oauthenticator
 ENV OAUTHENTICATOR_DIR /srv/oauthenticator
 ADD jupyterhub_config.py jupyterhub_config.py
 ADD admins /srv/oauthenticator/admins
+ADD allowed_users /srv/oauthenticator/allowed_users
 RUN chmod 700 /srv/oauthenticator
 
 EXPOSE 8000

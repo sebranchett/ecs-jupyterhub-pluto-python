@@ -43,15 +43,13 @@ This architecture uses serverless services in order to remove the need from mana
   Please add this ARN and the image tag to the `config.yaml` file.
 
 ## Users
-The CDK stack will provision the jupyter administrator user according to the list provided in the hub_docker/admins file. An initial list of (non-admin) users can be specified in a hub_docker/initial_users file, see example file provided.
+The CDK HubStack stack will provision the jupyter administrator user(s) according to the list provided in the hub_docker/admins file. A list of allowed (non-admin) users can be specified in a hub_docker/allowed_users file, see example file provided.
 
-If you wish to add users, do this in the Cognito user pool. JupyterHub will accept them as standard users.
+If you wish to add or remove users, edit the allowed_users file. You will then need to destroy the HubStack, empty the Cognito user pool and redeploy the HubStack.
 
-If you wish to remove a user, do this in Cognito, then remove them in JupyterHub too. Also think about what to do with the data they leave behind.
+If you destroy the HubStack, the Cognito users will not be deleted. You need to delete them by hand, otherwise redeploying the HubStack will fail with a message that the user already exists. This is the purpose of the `cleanup_user_pool.sh` script, which works only if you have exactly one Cognito user pool.
 
 If you want to change the status of a user, from standard to administrator or from administrator to standard, do this in JupyterHub.
-
-If you destroy the HubStack, the Cognito users will not be deleted. You need to delete them by hand, otherwise redeploying the HubStack will fail with a message that the user already exists.
 
 ## Security
 
@@ -68,8 +66,6 @@ Inherited from Avishay Bar.
 
 ## ToDo
 - Add Fargate Spawner.
-- Add NetID authentication. This may require a more permanent Cognito User Pool.
-- Remove initial password, once NetID is working.
 - Kill idle processes.
 - Make tests.
 - Refactor.

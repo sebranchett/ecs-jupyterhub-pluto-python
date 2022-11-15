@@ -19,10 +19,10 @@ aws ecr describe-repositories
 ```
 The ARN and URI are different and you will need both: the URI is used here; the ARN is used in your config.yaml.
 
-## Add admin user(s) and initial users
+## Add admin user(s) and allowed users
 The file `admin` should contain the JupyterHub administrator user names, one per line.
 
-A file called `initial_users` can be used to set up the initial group of regular users. It should contain the user names, one per line. See the `example_initial_users` file. Note that these users will be handled by AWS Cognito and not in the Docker image.
+The file `allowed_users` should contain the user names, one per line, of all non-admin user who are allowed to access JupyterHub.
 
 Please [read this](https://jupyterhub.readthedocs.io/en/stable/getting-started/authenticators-users-basics.html#authentication-and-user-basics) for explanation and warnings.
 
@@ -53,3 +53,8 @@ docker push <ecr_repository_uri>
 
 ## Next time
 If you want to update the Docker image you use for JupyterHub, you can copy and paste the 4 commands you need by opening the ECR management console, selecting your repository and clicking on 'View push commands'.
+
+## Notes to future self
+I decided to use `preferred_username` as the `OAUTH_LOGIN_USERNAME_KEY`. The JupyterHub file system cannot create users' home directories with `@` or `.` in the name. Custom home directories replace these characters with `_`. Admin users are created before `OAUTH`, so their username(, home directory) and `preferred_username` should be the same and not have difficult characters.
+
+The allowed_users are passed in an environmental variable. I wanted to create a Cognito group of allowed users and do the administration from there. Unfortunately, Cognito passes the group information in the ACCESS token and Jupyter looks for group membership in the USERDATA_URL.

@@ -210,6 +210,18 @@ class HubStack(Stack):
             self, "Repo", hub_container_image_repository_arn
         )
 
+        allowed_users = set()
+        try:
+            with open('hub_docker/allowed_users') as fp:
+                for line in fp:
+                    if not line:
+                        continue
+                    parts = line.split()
+                    name = parts[0]
+                    allowed_users.add(name)
+        except IOError:
+            pass
+
         ecs_container = ecs_task_definition.add_container(
             f'{base_name}Container',
             image=ecs.ContainerImage.from_ecr_repository(
@@ -229,6 +241,7 @@ class HubStack(Stack):
                 log_retention=logs.RetentionDays.ONE_WEEK
             ),
             environment={
+                'ALLOWED_USERS': str(allowed_users),
                 'OAUTH_CALLBACK_URL':
                     'https://' + domain_name +
                     '/hub/oauth_callback',
@@ -296,9 +309,9 @@ class HubStack(Stack):
                 target_groups=[ecs_service.target_group])
         )
 
-        # Cognito admin and initial users from files
+        # Cognito admin users from files
         all_users = set()
-        for users in ['hub_docker/admins', 'hub_docker/initial_users']:
+        for users in ['hub_docker/admins']:
             try:
                 with open(users) as fp:
                     lines = fp.readlines()
@@ -322,6 +335,12 @@ class HubStack(Stack):
                         'Username': user,
                         'TemporaryPassword': config_yaml[
                             'admin_temp_password'
+                        ],
+                        'UserAttributes': [
+                            {
+                                'Name': 'preferred_username',
+                                'Value': user
+                            }
                         ]
                     },
                     physical_resource_id=cr.PhysicalResourceId.of(
