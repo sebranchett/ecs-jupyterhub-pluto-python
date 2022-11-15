@@ -256,9 +256,9 @@ class HubStack(Stack):
                 target_groups=[ecs_service.target_group])
         )
 
-        # Cognito admin and initial users from files
+        # Cognito admin users from files
         all_users = set()
-        for users in ['hub_docker/admins', 'hub_docker/initial_users']:
+        for users in ['hub_docker/admins']:
             try:
                 with open(users) as fp:
                     lines = fp.readlines()
