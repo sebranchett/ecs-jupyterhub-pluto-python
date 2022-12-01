@@ -5,7 +5,6 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elb,
     aws_certificatemanager as acm,
-    aws_cognito as cognito,
     custom_resources as cr,
     aws_ecs as ecs,
     aws_ecs_patterns as ecs_patterns,
@@ -40,16 +39,12 @@ class HubStack(Stack):
 
         domain_name = application_prefix + '.' + hosted_zone_name
 
-        cognito_user_pool = cognito.UserPool.from_user_pool_id(
-            self, "UserPoolID", cognito_user_pool_id
-        )
-
         cognito_tudelft_stack = CognitoTudelftStack(
             self,
             "CognitoTudelftStack",
             base_name=base_name,
             application_domain_name=domain_name,
-            cognito_user_pool=cognito_user_pool,
+            cognito_user_pool_id=cognito_user_pool_id,
             env=Environment(
                 account=self.account,
                 region=self.region
@@ -65,7 +60,7 @@ class HubStack(Stack):
                 service='CognitoIdentityServiceProvider',
                 action='describeUserPoolClient',
                 parameters={
-                    'UserPoolId': cognito_user_pool.user_pool_id,
+                    'UserPoolId': cognito_user_pool_id,
                     'ClientId': cognito_tudelft_stack.app_client.
                         user_pool_client_id
                 },
@@ -265,7 +260,7 @@ class HubStack(Stack):
                     service='CognitoIdentityServiceProvider',
                     action='adminCreateUser',
                     parameters={
-                        'UserPoolId': cognito_user_pool.user_pool_id,
+                        'UserPoolId': cognito_user_pool_id,
                         'Username': user,
                         'TemporaryPassword': config_yaml[
                             'admin_temp_password'
@@ -278,7 +273,7 @@ class HubStack(Stack):
                         ]
                     },
                     physical_resource_id=cr.PhysicalResourceId.of(
-                        cognito_user_pool.user_pool_id)
+                        cognito_user_pool_id)
                 )
             )
 
