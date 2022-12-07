@@ -166,8 +166,11 @@ class HubStack(Stack):
         fargate_task_definition = ecs.FargateTaskDefinition(
             self, "TaskDefinition",
             cpu=512,
-            memory_limit_mib=4096
+            memory_limit_mib=4096,
+            execution_role=ecs_task_execution_role,
+            task_role=ecs_task_role
         )
+
         fargate_task_definition.add_container(
             "SingleUserContainer",
             image=ecs.ContainerImage.from_ecr_repository(
@@ -179,7 +182,8 @@ class HubStack(Stack):
                 ecs.PortMapping(container_port=8888)
             ],
             logging=ecs.LogDrivers.aws_logs(
-                stream_prefix="FargateService"
+                stream_prefix=f'{base_name}SingleUser-',
+                log_retention=logs.RetentionDays.ONE_WEEK
             )
         )
 
@@ -215,7 +219,7 @@ class HubStack(Stack):
                 )
             ],
             logging=ecs.LogDriver.aws_logs(
-                stream_prefix=f'{base_name}ContainerLogs-',
+                stream_prefix=f'{base_name}Hub-',
                 log_retention=logs.RetentionDays.ONE_WEEK
             ),
             environment={
@@ -254,14 +258,13 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_TASK_DEFINITION':
                     fargate_task_definition.task_definition_arn,
                 'FARGATE_SPAWNER_TASK_ROLE_ARN':
-                    ecs_task_role.role_arn,
+                    ecs_task_execution_role.role_arn,
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
                     str(security_group_ids),
                 'FARGATE_SPAWNER_SUBNETS':
                     str(subnet_ids)
             }
         )
-# TODO: check FARGATE_SPAWNER_ECS_HOST
 
         ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}Service',
