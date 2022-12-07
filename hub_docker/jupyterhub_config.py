@@ -96,8 +96,8 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
         'awsvpcConfiguration': {
             'assignPublicIp': 'DISABLED',
             'securityGroups':
-                os.environ.get('FARGATE_SPAWNER_SECURITY_GROUPS'),
-            'subnets':  os.environ.get('FARGATE_SPAWNER_SUBNETS'),
+                eval(os.environ.get('FARGATE_SPAWNER_SECURITY_GROUPS')),
+            'subnets': eval(os.environ.get('FARGATE_SPAWNER_SUBNETS'))
         },
     },
 }

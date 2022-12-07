@@ -43,6 +43,9 @@ class HubStack(Stack):
 
         domain_name = application_prefix + '.' + hosted_zone_name
 
+        security_group_ids = []
+        security_group_ids.append(ecs_service_security_group.security_group_id)
+
         cognito_tudelft_stack = CognitoTudelftStack(
             self,
             "CognitoTudelftStack",
@@ -79,12 +82,9 @@ class HubStack(Stack):
             )
 
         # Make a string of the private subnets
-        subnets_string = ''
+        subnet_ids = []
         for subnet in vpc.private_subnets:
-            subnets_string = subnets_string + ', ' + subnet.subnet_id
-        if len(subnets_string) > 2:
-            subnets_string = subnets_string[2:]  # remove leading ', '
-        # TODO: This could be improved
+            subnet_ids.append(subnet.subnet_id)
 
         # ECS task roles and definition
         ecs_task_execution_role = iam.Role(
@@ -248,7 +248,7 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_REGION':
                     self.region,
                 'FARGATE_SPAWNER_ECS_HOST':
-                    'ecs.' + self.region + 'amazonaws.com',
+                    'ecs.' + self.region + '.amazonaws.com',
                 'FARGATE_SPAWNER_CLUSTER':
                     ecs_cluster.cluster_name,
                 'FARGATE_SPAWNER_TASK_DEFINITION':
@@ -256,9 +256,9 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_TASK_ROLE_ARN':
                     ecs_task_role.role_arn,
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
-                    '[' + ecs_service_security_group.security_group_id + ']',
+                    str(security_group_ids),
                 'FARGATE_SPAWNER_SUBNETS':
-                    '[' + subnets_string + ']'
+                    str(subnet_ids)
             }
         )
 # TODO: check FARGATE_SPAWNER_ECS_HOST
