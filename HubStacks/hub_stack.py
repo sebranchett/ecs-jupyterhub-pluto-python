@@ -5,15 +5,15 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elb,
     aws_certificatemanager as acm,
-    aws_cognito as cognito,
     custom_resources as cr,
     aws_ecs as ecs,
     aws_ecs_patterns as ecs_patterns,
     aws_iam as iam,
     aws_logs as logs,
     aws_ecr as ecr,
-    App, Stack
+    App, Stack, Environment
 )
+from cognito_tudelft.tudelft_idp import CognitoTudelftStack
 
 
 class HubStack(Stack):
@@ -41,32 +41,18 @@ class HubStack(Stack):
             config_yaml['single_user_container_image_tag']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
-        suffix_txt = "secure"
-        suffix = f'{suffix_txt}'.lower()
         domain_name = application_prefix + '.' + hosted_zone_name
 
-        cognito_user_pool = cognito.UserPool.from_user_pool_id(
-            self, "UserPoolID", cognito_user_pool_id
-        )
-        cognito_app_client = cognito.UserPoolClient(
+        cognito_tudelft_stack = CognitoTudelftStack(
             self,
-            f'{base_name}UserPoolClient',
-            user_pool=cognito_user_pool,
-            generate_secret=True,
-            supported_identity_providers=[
-                cognito.UserPoolClientIdentityProvider.COGNITO],
-            prevent_user_existence_errors=True,
-            o_auth=cognito.OAuthSettings(
-                callback_urls=[
-                    'https://' + domain_name +
-                    '/hub/oauth_callback'
-                ],
-                flows=cognito.OAuthFlows(
-                    authorization_code_grant=True,
-                    implicit_code_grant=True
-                ),
-                scopes=[cognito.OAuthScope.PROFILE, cognito.OAuthScope.OPENID]
-            )
+            "CognitoTudelftStack",
+            base_name=base_name,
+            application_domain_name=domain_name,
+            cognito_user_pool_id=cognito_user_pool_id,
+            env=Environment(
+                account=self.account,
+                region=self.region
+            ),
         )
 
         describe_cognito_user_pool_client = cr.AwsCustomResource(
@@ -78,11 +64,12 @@ class HubStack(Stack):
                 service='CognitoIdentityServiceProvider',
                 action='describeUserPoolClient',
                 parameters={
-                    'UserPoolId': cognito_user_pool.user_pool_id,
-                    'ClientId': cognito_app_client.user_pool_client_id
+                    'UserPoolId': cognito_user_pool_id,
+                    'ClientId': cognito_tudelft_stack.app_client.
+                        user_pool_client_id
                 },
                 physical_resource_id=cr.PhysicalResourceId.of(
-                    cognito_app_client.user_pool_client_id)
+                    cognito_tudelft_stack.app_client.user_pool_client_id)
             )
         )
 
@@ -90,15 +77,6 @@ class HubStack(Stack):
             describe_cognito_user_pool_client.get_response_field(
                 'UserPoolClient.ClientSecret'
             )
-
-        cognito_user_pool_domain = cognito.UserPoolDomain(
-            self,
-            f'{base_name}UserPoolDomain',
-            cognito_domain=cognito.CognitoDomainOptions(
-                domain_prefix=application_prefix + '-' + suffix
-            ),
-            user_pool=cognito_user_pool
-        )
 
         # Make a string of the private subnets
         subnets_string = ''
@@ -245,21 +223,25 @@ class HubStack(Stack):
                 'OAUTH_CALLBACK_URL':
                     'https://' + domain_name +
                     '/hub/oauth_callback',
-                'OAUTH_CLIENT_ID': cognito_app_client.user_pool_client_id,
+                'OAUTH_CLIENT_ID': cognito_tudelft_stack.app_client.
+                    user_pool_client_id,
                 'OAUTH_CLIENT_SECRET': cognito_user_pool_client_secret,
                 'OAUTH_LOGIN_SERVICE_NAME':
                     config_yaml['oauth_login_service_name'],
                 'OAUTH_LOGIN_USERNAME_KEY':
                     config_yaml['oauth_login_username_key'],
                 'OAUTH_AUTHORIZE_URL':
-                    'https://' + cognito_user_pool_domain.domain_name +
+                    'https://' +
+                    cognito_tudelft_stack.user_pool_domain.domain_name +
                     '.auth.' + self.region +
                     '.amazoncognito.com/oauth2/authorize',
                 'OAUTH_TOKEN_URL':
-                    'https://' + cognito_user_pool_domain.domain_name +
+                    'https://' +
+                    cognito_tudelft_stack.user_pool_domain.domain_name +
                     '.auth.' + self.region + '.amazoncognito.com/oauth2/token',
                 'OAUTH_USERDATA_URL':
-                    'https://' + cognito_user_pool_domain.domain_name +
+                    'https://' +
+                    cognito_tudelft_stack.user_pool_domain.domain_name +
                     '.auth.' + self.region +
                     '.amazoncognito.com/oauth2/userInfo',
                 'OAUTH_SCOPE': ','.join(config_yaml['oauth_scope']),
@@ -331,7 +313,7 @@ class HubStack(Stack):
                     service='CognitoIdentityServiceProvider',
                     action='adminCreateUser',
                     parameters={
-                        'UserPoolId': cognito_user_pool.user_pool_id,
+                        'UserPoolId': cognito_user_pool_id,
                         'Username': user,
                         'TemporaryPassword': config_yaml[
                             'admin_temp_password'
@@ -344,7 +326,7 @@ class HubStack(Stack):
                         ]
                     },
                     physical_resource_id=cr.PhysicalResourceId.of(
-                        cognito_user_pool.user_pool_id)
+                        cognito_user_pool_id)
                 )
             )
 
