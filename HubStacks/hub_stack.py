@@ -130,7 +130,11 @@ class HubStack(Stack):
                     'logs:DescribeLogStreams',
                     'logs:CreateLogGroup',
                     'logs:PutLogEvents',
-                    'logs:PutRetentionPolicy'
+                    'logs:PutRetentionPolicy',
+                    'ecs:RunTask',
+                    'ecs:StopTask',
+                    'ecs:DescribeTasks',
+                    'iam:PassRole'
                 ]
             )
         )
@@ -258,7 +262,7 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_TASK_DEFINITION':
                     fargate_task_definition.task_definition_arn,
                 'FARGATE_SPAWNER_TASK_ROLE_ARN':
-                    ecs_task_execution_role.role_arn,
+                    ecs_task_role.role_arn,
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
                     str(security_group_ids),
                 'FARGATE_SPAWNER_SUBNETS':

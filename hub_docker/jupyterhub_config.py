@@ -72,6 +72,13 @@ c.FargateSpawner.aws_ecs_host = os.environ.get('FARGATE_SPAWNER_ECS_HOST')
 c.FargateSpawner.notebook_port = 8888
 c.FargateSpawner.notebook_scheme = "http"
 # overrides ->containerOverrides -> command: '--config=notebook_config.py'
+# overrides ->containerOverrides: 'environment': [
+# overrides ->containerOverrides:     {
+# overrides ->containerOverrides:         'name': name,
+# overrides ->containerOverrides:         'value': value,
+# overrides ->containerOverrides:} for name, value in spawner.get_env().items()
+# overrides ->containerOverrides: ],
+# overrides ->containerOverrides: 'name': 'jupyterhub-notebook',
 c.FargateSpawner.get_run_task_args = lambda spawner: {
     'cluster': os.environ.get('FARGATE_SPAWNER_CLUSTER'),
     'taskDefinition': os.environ.get('FARGATE_SPAWNER_TASK_DEFINITION'),
@@ -81,13 +88,6 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
             'command': spawner.cmd + [
                 f'--port={spawner.notebook_port}',
             ],
-            'environment': [
-                {
-                    'name': name,
-                    'value': value,
-                } for name, value in spawner.get_env().items()
-            ],
-            'name': 'jupyterhub-notebook',
         }],
     },
     'count': 1,
