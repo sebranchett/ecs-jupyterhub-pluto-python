@@ -71,6 +71,7 @@ c.FargateSpawner.aws_region = os.environ.get('FARGATE_SPAWNER_REGION')
 c.FargateSpawner.aws_ecs_host = os.environ.get('FARGATE_SPAWNER_ECS_HOST')
 c.FargateSpawner.notebook_port = "8888"
 c.FargateSpawner.notebook_scheme = "http"
+# overrides ->containerOverrides -> command: '--config=notebook_config.py'
 c.FargateSpawner.get_run_task_args = lambda spawner: {
     'cluster': os.environ.get('FARGATE_SPAWNER_CLUSTER'),
     'taskDefinition': os.environ.get('FARGATE_SPAWNER_TASK_DEFINITION'),
@@ -79,7 +80,6 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
         'containerOverrides': [{
             'command': spawner.cmd + [
                 f'--port={spawner.notebook_port}',
-                '--config=notebook_config.py'
             ],
             'environment': [
                 {
