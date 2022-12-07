@@ -4,6 +4,8 @@ import os
 import sys
 import re
 from oauthenticator.generic import LocalGenericOAuthenticator
+from fargatespawner import FargateSpawner, FargateSpawnerECSRoleAuthentication
+
 
 join = os.path.join
 
@@ -61,3 +63,41 @@ c.LocalGenericOAuthenticator.userdata_url = os.environ.get(
 c.LocalGenericOAuthenticator.scope = os.environ.get(
     'OAUTH_SCOPE'
 ).split(',')
+
+c.JupyterHub.spawner_class = FargateSpawner
+c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
+
+c.FargateSpawner.aws_region = os.environ.get('FARGATE_SPAWNER_REGION')
+c.FargateSpawner.aws_ecs_host = os.environ.get('FARGATE_SPAWNER_ECS_HOST')
+c.FargateSpawner.notebook_port = "8888"
+c.FargateSpawner.notebook_scheme = "http"
+c.FargateSpawner.get_run_task_args = lambda spawner: {
+    'cluster': os.environ.get('FARGATE_SPAWNER_CLUSTER'),
+    'taskDefinition': os.environ.get('FARGATE_SPAWNER_TASK_DEFINITION'),
+    'overrides': {
+        'taskRoleArn': os.environ.get('FARGATE_SPAWNER_TASK_ROLE_ARN'),
+        'containerOverrides': [{
+            'command': spawner.cmd + [
+                f'--port={spawner.notebook_port}',
+                '--config=notebook_config.py'
+            ],
+            'environment': [
+                {
+                    'name': name,
+                    'value': value,
+                } for name, value in spawner.get_env().items()
+            ],
+            'name': 'jupyterhub-notebook',
+        }],
+    },
+    'count': 1,
+    'launchType': 'FARGATE',
+    'networkConfiguration': {
+        'awsvpcConfiguration': {
+            'assignPublicIp': 'DISABLED',
+            'securityGroups':
+                os.environ.get('FARGATE_SPAWNER_SECURITY_GROUPS'),
+            'subnets':  os.environ.get('FARGATE_SPAWNER_SUBNETS'),
+        },
+    },
+}
