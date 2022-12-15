@@ -5,6 +5,7 @@ under an [Unlicense license](https://github.com/pankgeorg/pluto-on-jupyterlab/bl
 This link was helpful:
 https://jupyter-docker-stacks.readthedocs.io/en/latest/.
 
+## Testing locally
 You can check this Dockerfile locally:
 ```
 docker build . -t local
@@ -22,6 +23,13 @@ In a browser, navigate to:
 http://localhost:8888/?token=<long token hash>
 ```
 
+If you want to test your image from a JupyterHub on your laptop, [this is a good resource](https://github.com/jupyterhub/dockerspawner/tree/main/examples/simple). Note that if you are using a Windows laptop, you will need an extra slash (`/`) before the socket:
+
+
+`docker run --rm -it -v `***`/`***`/var/run/docker.sock:/var/run/docker.sock --net jupyterhub --name jupyterhub -p8000:8000 hub`
+
+
+## Uploading the image
 Once you are happy with the Docker image, you can upload it to AWS ECR in the same way as for the JupyterHub Docker image:
 
 First make sure you are logged into you AWS account.
