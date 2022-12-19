@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+import socket
 from oauthenticator.generic import LocalGenericOAuthenticator
 from fargatespawner import FargateSpawner, FargateSpawnerECSRoleAuthentication
 
@@ -66,7 +67,7 @@ c.LocalGenericOAuthenticator.scope = os.environ.get(
 
 # we need the hub to listen on all ips when it is in a container
 c.JupyterHub.hub_ip = '0.0.0.0'
-c.JupyterHub.hub_connect_ip = os.environ.get('FARGATE_HUB_CONNECT_IP')
+c.JupyterHub.hub_connect_ip = socket.gethostbyname(socket.gethostname())
 
 # c.JupyterHub.base_url = os.environ.get('FARGATE_BIND_URL')
 # c.JupyterHub.bind_url = os.environ.get('FARGATE_BIND_URL')
