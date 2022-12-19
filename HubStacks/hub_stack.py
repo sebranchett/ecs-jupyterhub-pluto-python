@@ -253,6 +253,8 @@ class HubStack(Stack):
                     '.auth.' + self.region +
                     '.amazoncognito.com/oauth2/userInfo',
                 'OAUTH_SCOPE': ','.join(config_yaml['oauth_scope']),
+                'FARGATE_BIND_URL':
+                    'https://' + domain_name,
                 'FARGATE_SPAWNER_REGION':
                     self.region,
                 'FARGATE_SPAWNER_ECS_HOST':

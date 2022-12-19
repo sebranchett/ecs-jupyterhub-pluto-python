@@ -64,7 +64,12 @@ c.LocalGenericOAuthenticator.scope = os.environ.get(
     'OAUTH_SCOPE'
 ).split(',')
 
+# we need the hub to listen on all ips when it is in a container
+c.JupyterHub.hub_ip = '0.0.0.0'
+
+c.JupyterHub.bind_url = os.environ.get('FARGATE_BIND_URL')
 c.Spawner.http_timeout = 180
+
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
 
