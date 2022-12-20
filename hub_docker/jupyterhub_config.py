@@ -72,12 +72,7 @@ ip = public_ips()[0]
 c.JupyterHub.hub_ip = ip
 # the hostname/ip that should be used to connect to the hub
 # this is usually the hub container's name
-c.JupyterHub.hub_connect_ip = ip
-
-# c.JupyterHub.base_url = os.environ.get('FARGATE_BIND_URL')
-# c.JupyterHub.bind_url = os.environ.get('FARGATE_BIND_URL')
-# c.JupyterHub.hub_connect_url = os.environ.get('FARGATE_BIND_URL')
-# c.JupyterHub.hub_bind_url = os.environ.get('FARGATE_BIND_URL')
+# c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.http_timeout = 180
 
