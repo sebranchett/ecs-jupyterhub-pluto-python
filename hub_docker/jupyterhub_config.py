@@ -3,9 +3,9 @@
 import os
 import sys
 import re
-import socket
 from oauthenticator.generic import LocalGenericOAuthenticator
 from fargatespawner import FargateSpawner, FargateSpawnerECSRoleAuthentication
+from jupyter_client.localinterfaces import public_ips
 
 
 join = os.path.join
@@ -66,8 +66,13 @@ c.LocalGenericOAuthenticator.scope = os.environ.get(
 ).split(',')
 
 # we need the hub to listen on all ips when it is in a container
-c.JupyterHub.hub_ip = '0.0.0.0'
-c.JupyterHub.hub_connect_ip = socket.gethostbyname(socket.gethostname())
+# this from: https://github.com/jupyterhub/dockerspawner/issues/198
+# "nils-werner commented on Jul 12, 2018"
+ip = public_ips()[0]
+c.JupyterHub.hub_ip = ip
+# the hostname/ip that should be used to connect to the hub
+# this is usually the hub container's name
+c.JupyterHub.hub_connect_ip = ip
 
 # c.JupyterHub.base_url = os.environ.get('FARGATE_BIND_URL')
 # c.JupyterHub.bind_url = os.environ.get('FARGATE_BIND_URL')
