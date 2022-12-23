@@ -13,3 +13,10 @@ RUN julia -e "import Pkg; Pkg.add([\"PlutoUI\", \"Pluto\"]); Pkg.precompile()"
 
 RUN pip3 install jupyter-server-proxy && \
     pip3 install git+https://github.com/sebranchett/pluto-on-jupyterlab.git
+
+COPY requirements.txt /tmp/requirements.txt
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --no-cache -r /tmp/requirements.txt
+
+RUN mkdir -p ~/.jupyter
+COPY jupyter_server_config.py ~/.jupyter/jupyter_server_config.py

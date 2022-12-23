@@ -69,10 +69,17 @@ c.LocalGenericOAuthenticator.scope = os.environ.get(
 # this from: https://github.com/jupyterhub/dockerspawner/issues/198
 # "nils-werner commented on Jul 12, 2018"
 ip = public_ips()[0]
+# Users from outside hitting the proxy:
+c.JupyterHub.ip = ip
+c.JupyterHub.port = 8000
+# API side of proxy, that the Hub will use:
+c.ConfigurableHTTPProxy.api_url = 'http://' + ip + ':8001'
+# Hub location so the proxy and the spawners can find it
+# --default-target and --error-target should point here
 c.JupyterHub.hub_ip = ip
+c.JupyterHub.hub_port = 8081
 # the hostname/ip that should be used to connect to the hub
-# this is usually the hub container's name
-# c.JupyterHub.hub_connect_ip = ip
+c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.http_timeout = 180
 
