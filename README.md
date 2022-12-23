@@ -65,9 +65,7 @@ Inherited from Avishay Bar.
 - Permanent resources, such as EFS, CMK, and Cognito User Pool (temporarily disabled) are defined to be destroyed when the stack is deleted.
 
 ## ToDo
-- Add Fargate Spawner.
-- Kill idle processes.
-- Make tests.
-- Refactor.
-- Add Bootstrap for KMS key, EFS, ECR, SSL certificate?
-- Add repo creation to FrameStack.
+- Get Fargate Spawner working
+- Connect non-volatile storage
+- Make tests
+- Rethink (bootstrap) stack organisation
