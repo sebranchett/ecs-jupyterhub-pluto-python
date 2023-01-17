@@ -146,7 +146,7 @@ class HubStack(Stack):
             )
         )
 
-        ecs_task_definition = ecs.FargateTaskDefinition(
+        hub_task_definition = ecs.FargateTaskDefinition(
             self,
             f'{base_name}TaskDefinition',
             cpu=512,
@@ -167,7 +167,7 @@ class HubStack(Stack):
             single_user_container_image_repository_arn
         )
 
-        fargate_task_definition = ecs.FargateTaskDefinition(
+        single_user_task_definition = ecs.FargateTaskDefinition(
             self, "TaskDefinition",
             cpu=512,
             memory_limit_mib=4096,
@@ -175,7 +175,7 @@ class HubStack(Stack):
             task_role=ecs_task_role
         )
 
-        fargate_task_definition.add_container(
+        single_user_task_definition.add_container(
             "SingleUserContainer",
             image=ecs.ContainerImage.from_ecr_repository(
                 repository=single_user_repository,
@@ -208,7 +208,7 @@ class HubStack(Stack):
         except IOError:
             pass
 
-        ecs_container = ecs_task_definition.add_container(
+        hub_container = hub_task_definition.add_container(
             f'{base_name}Container',
             image=ecs.ContainerImage.from_ecr_repository(
                 repository=hub_repository,
@@ -262,7 +262,7 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_CLUSTER':
                     ecs_cluster.cluster_name,
                 'FARGATE_SPAWNER_TASK_DEFINITION':
-                    fargate_task_definition.task_definition_arn,
+                    single_user_task_definition.task_definition_arn,
                 'FARGATE_SPAWNER_TASK_ROLE_ARN':
                     ecs_task_role.role_arn,
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
@@ -272,17 +272,25 @@ class HubStack(Stack):
             }
         )
 
-        ecs_service = ecs_patterns.ApplicationLoadBalancedFargateService(
-            self, f'{base_name}Service',
+        # single_user_service
+        ecs.FargateService(
+            self, f'{base_name}SingleUserService',
             cluster=ecs_cluster,
-            task_definition=ecs_task_definition,
+            task_definition=single_user_task_definition,
+            security_groups=[ecs_service_security_group]
+        )
+
+        hub_service = ecs_patterns.ApplicationLoadBalancedFargateService(
+            self, f'{base_name}HubService',
+            cluster=ecs_cluster,
+            task_definition=hub_task_definition,
             load_balancer=load_balancer,
             desired_count=config_yaml['num_containers'],
             security_groups=[ecs_service_security_group],
             open_listener=False
         )
 
-        ecs_service.target_group.configure_health_check(
+        hub_service.target_group.configure_health_check(
             path='/hub',
             enabled=True,
             healthy_http_codes='200-302'
@@ -292,12 +300,12 @@ class HubStack(Stack):
             self, "Certificate", certificate_arn
         )
         load_balancer.add_listener(
-            f'{base_name}ServiceELBListener',
+            f'{base_name}HubServiceListener',
             port=443,
             protocol=elb.ApplicationProtocol.HTTPS,
             certificates=[certificate],
             default_action=elb.ListenerAction.forward(
-                target_groups=[ecs_service.target_group])
+                target_groups=[hub_service.target_group])
         )
 
         # Cognito admin users from files
@@ -345,11 +353,11 @@ class HubStack(Stack):
             description='Allow EFS from ECS Service containers'
         )
 
-        ecs_task_definition.add_volume(
+        hub_task_definition.add_volume(
             name='efs-volume',
             efs_volume_configuration=ecs.EfsVolumeConfiguration(
                 file_system_id=file_system.file_system_id
             )
         )
 
-        ecs_container.add_mount_points(efs_mount_point)
+        hub_container.add_mount_points(efs_mount_point)
