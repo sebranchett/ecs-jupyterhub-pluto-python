@@ -95,6 +95,9 @@ class FrameStack(Stack):
             description='Hub ECS service containers security group',
             allow_all_outbound=True
         )
+        ecs_service_security_group.connections.allow_internally(
+            port_range=ec2.Port.all_tcp()
+        )
 
         # Output resources needed by HubStack
         self.vpc = vpc
