@@ -118,7 +118,10 @@ class HubStack(Stack):
         ecs_task_role.add_to_policy(
             iam.PolicyStatement(
                 resources=['*'],
-                actions=['cloudwatch:PutMetricData', 'cloudwatch:ListMetrics']
+                actions=[
+                    'cloudwatch:PutMetricData', 'cloudwatch:ListMetrics',
+                    'ecs:DescribeTasks'
+                ]
             )
         )
 
