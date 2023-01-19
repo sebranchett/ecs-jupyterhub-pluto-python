@@ -96,7 +96,7 @@ class FrameStack(Stack):
             allow_all_outbound=True
         )
         ecs_service_security_group.connections.allow_internally(
-            port_range=ec2.Port.all_tcp()
+            port_range=ec2.Port.all_traffic()
         )
 
         # Output resources needed by HubStack

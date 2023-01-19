@@ -11,8 +11,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_logs as logs,
     aws_ecr as ecr,
-    aws_servicediscovery as servicediscovery,
-    App, Stack, Environment, RemovalPolicy
+    App, Stack, Environment
 )
 from cognito_tudelft.tudelft_idp import CognitoTudelftStack
 
@@ -276,28 +275,6 @@ class HubStack(Stack):
             }
         )
 
-        namespace = servicediscovery.PrivateDnsNamespace(
-            self, f'{base_name}Namespace',
-            vpc=vpc,
-            name=f'{base_name}Namespace'
-        )
-
-        cloudmap = namespace.create_service(
-            f'{base_name}DiscoveryService'
-        )
-        cloudmap.apply_removal_policy(RemovalPolicy.DESTROY)
-
-        # single_user_service
-        ecs.FargateService(
-            self, f'{base_name}SingleUserService',
-            cluster=ecs_cluster,
-            task_definition=single_user_task_definition,
-            security_groups=[ecs_service_security_group],
-            cloud_map_options=ecs.CloudMapOptions(
-                cloud_map_namespace=namespace
-            )
-        )
-
         hub_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}HubService',
             cluster=ecs_cluster,
@@ -305,10 +282,7 @@ class HubStack(Stack):
             load_balancer=load_balancer,
             desired_count=config_yaml['num_containers'],
             security_groups=[ecs_service_security_group],
-            open_listener=False,
-            cloud_map_options=ecs.CloudMapOptions(
-                cloud_map_namespace=namespace
-            )
+            open_listener=False
         )
 
         hub_service.target_group.configure_health_check(
