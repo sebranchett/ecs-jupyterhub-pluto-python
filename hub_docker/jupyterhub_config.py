@@ -108,6 +108,19 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
     'taskDefinition': os.environ.get('FARGATE_SPAWNER_TASK_DEFINITION'),
     'overrides': {
         'taskRoleArn': os.environ.get('FARGATE_SPAWNER_TASK_ROLE_ARN'),
+        'containerOverrides': [{
+            'command': spawner.cmd + [
+                f'--port={spawner.notebook_port}',
+                '--config=jupyter_server_config.py'
+            ],
+            'environment': [
+                {
+                    'name': name,
+                    'value': value,
+                } for name, value in spawner.get_env().items()
+            ],
+            'name': os.environ.get('FARGATE_SPAWNER_CONTAINER_NAME')
+        }],
     },
     'count': 1,
     'launchType': 'FARGATE',

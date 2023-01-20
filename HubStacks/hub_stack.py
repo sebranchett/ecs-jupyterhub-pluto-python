@@ -272,7 +272,9 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
                     str(security_group_ids),
                 'FARGATE_SPAWNER_SUBNETS':
-                    str(subnet_ids)
+                    str(subnet_ids),
+                'FARGATE_SPAWNER_CONTAINER_NAME':
+                    "SingleUserContainer"
             }
         )
 
