@@ -81,6 +81,12 @@ class HubStack(Stack):
                 'UserPoolClient.ClientSecret'
             )
 
+        efs_mount_point = ecs.MountPoint(
+            container_path='/home',
+            source_volume='efs-volume',
+            read_only=False
+        )
+
         # Make a string of the private subnets
         subnet_ids = []
         for subnet in vpc.private_subnets:
@@ -90,12 +96,6 @@ class HubStack(Stack):
         ecs_task_execution_role = iam.Role(
             self, f'{base_name}TaskExecutionRole',
             assumed_by=iam.ServicePrincipal('ecs-tasks.amazonaws.com')
-        )
-
-        efs_mount_point = ecs.MountPoint(
-            container_path='/home',
-            source_volume='efs-volume',
-            read_only=False
         )
 
         managed_policy_arn = 'arn:aws:iam::aws:policy/service-role/' \
@@ -108,20 +108,19 @@ class HubStack(Stack):
             )
         )
 
+        ecs_task_execution_role.add_to_policy(
+            iam.PolicyStatement(
+                resources=['*'],
+                actions=[
+                    'iam:PassRole'
+                ]
+            )
+        )
+
         ecs_task_role = iam.Role(
             self,
             f'{base_name}TaskRole',
             assumed_by=iam.ServicePrincipal('ecs-tasks.amazonaws.com')
-        )
-
-        ecs_task_role.add_to_policy(
-            iam.PolicyStatement(
-                resources=['*'],
-                actions=[
-                    'cloudwatch:PutMetricData', 'cloudwatch:ListMetrics',
-                    'ecs:DescribeTasks'
-                ]
-            )
         )
 
         ecs_task_role.add_to_policy(
@@ -137,7 +136,9 @@ class HubStack(Stack):
                     'ecs:RunTask',
                     'ecs:StopTask',
                     'ecs:DescribeTasks',
-                    'iam:PassRole'
+                    'iam:PassRole',
+                    'cloudwatch:PutMetricData',
+                    'cloudwatch:ListMetrics'
                 ]
             )
         )
