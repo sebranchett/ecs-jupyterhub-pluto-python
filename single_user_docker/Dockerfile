@@ -20,6 +20,3 @@ RUN python3 -m pip install --no-cache -r /tmp/requirements.txt
 
 RUN mkdir -p ~/.jupyter
 COPY jupyter_server_config.py ~/.jupyter/jupyter_server_config.py
-RUN bash -c 'echo hello btsa'
-RUN bash -c 'echo $PATH'
-RUN bash -c 'which jupyterhub-singleuser'
