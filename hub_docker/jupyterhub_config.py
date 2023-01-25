@@ -96,7 +96,8 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
     'overrides': {
         'taskRoleArn': os.environ.get('FARGATE_SPAWNER_TASK_ROLE_ARN'),
         'containerOverrides': [{
-            'command': spawner.cmd + [
+            'command': [
+                '/opt/conda/bin/jupyterhub-singleuser',
                 f'--port={spawner.notebook_port}',
                 '--config=jupyter_server_config.py'
             ],
