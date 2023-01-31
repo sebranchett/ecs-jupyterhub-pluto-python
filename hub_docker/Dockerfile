@@ -1,4 +1,4 @@
-FROM jupyterhub/jupyterhub:2.3.1
+FROM jupyterhub/jupyterhub:3.1.1
 
 LABEL Project Jupyter <ipython-dev@scipy.org>
 
