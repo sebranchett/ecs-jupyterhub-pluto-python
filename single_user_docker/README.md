@@ -9,25 +9,19 @@ https://jupyter-docker-stacks.readthedocs.io/en/latest/.
 You can check this Dockerfile locally:
 ```
 docker build . -t local
-docker run -d -p 8888:8888 --name jupyter local
-<outputs a very long server hash>
-
-docker exec -it jupyter bash
-  jovyan@<shorter server hash>:~$ jupyter server list
-Currently running servers:
-http://<shorter server hash>:8888/?token=<long token hash> :: /home/jovyan
+docker run -it -p 8888:8888 local
 ```
 
-In a browser, navigate to:
-```
-http://localhost:8888/?token=<long token hash>
-```
+In a browser, navigate to one of the URLs in the output of the last command.
+
+If you are a Windows GitBash user and you get messages from the daemon about your path, then try setting the [environment variable MSYS_NO_PATHCONV=1](https://github.com/docker/cli/issues/2204#issuecomment-638993192).
 
 If you want to test your image from a JupyterHub on your laptop, [this is a good resource](https://github.com/jupyterhub/dockerspawner/tree/main/examples/simple). Note that if you are using a Windows laptop, you will need an extra slash (`/`) before the socket:
 
 
 `docker run --rm -it -v `***`/`***`/var/run/docker.sock:/var/run/docker.sock --net jupyterhub --name jupyterhub -p8000:8000 hub`
 
+Or try setting the [environment variable MSYS_NO_PATHCONV=1](https://github.com/docker/cli/issues/2204#issuecomment-638993192).
 
 ## Uploading the image
 Once you are happy with the Docker image, you can upload it to AWS ECR in the same way as for the JupyterHub Docker image:
