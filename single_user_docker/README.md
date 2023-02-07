@@ -9,7 +9,7 @@ https://jupyter-docker-stacks.readthedocs.io/en/latest/.
 You can check this Dockerfile locally:
 ```
 docker build . -t local
-docker run -it -p 8888:8888 local
+docker run --rm -it -p 8888:8888 local
 ```
 
 In a browser, navigate to one of the URLs in the output of the last command.
