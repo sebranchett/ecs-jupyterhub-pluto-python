@@ -82,6 +82,7 @@ c.JupyterHub.hub_port = 8081
 c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.http_timeout = 180
+c.Spawner.start_timeout = 180
 
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
@@ -110,19 +111,8 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
                     'value': value,
                 } for name, value in spawner.get_env().items()
             ],
-            'name': os.environ.get('FARGATE_SPAWNER_CONTAINER_NAME'),
-            'mountPoints': [
-                {
-                    'containerPath': '/home/jovyan',
-                    'readOnly': False,
-                    'sourceVolume': 'efs-{username}-volume'.replace("@", "_").replace(".", "_")
-                }
-            ]
+            'name': os.environ.get('FARGATE_SPAWNER_CONTAINER_NAME')
         }],
-        'volumes': [{
-            'name': 'efs-{username}-volume'.replace("@", "_").replace(".", "_"),
-            'efsVolumeConfiguration': os.environ.get('FARGATE_EFS_ID')
-        }]
     },
     'count': 1,
     'launchType': 'FARGATE',
@@ -136,5 +126,3 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
     },
 
 }
-volume_name = 'jupyterhub-user-{username}'.replace("@", "_").replace(".", "_")
-notebook_dir = '/home/jovyan'
