@@ -110,8 +110,19 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
                     'value': value,
                 } for name, value in spawner.get_env().items()
             ],
-            'name': os.environ.get('FARGATE_SPAWNER_CONTAINER_NAME')
+            'name': os.environ.get('FARGATE_SPAWNER_CONTAINER_NAME'),
+            'mountPoints': [
+                {
+                    'containerPath': '/home/jovyan',
+                    'readOnly': false,
+                    'sourceVolume': 'efs-{username}-volume'.replace("@", "_").replace(".", "_")
+                }
+            ]
         }],
+        'volumes': [{
+            'name': 'efs-{username}-volume'.replace("@", "_").replace(".", "_"),
+            'efsVolumeConfiguration': os.environ.get('FARGATE_EFS_ID')
+        }]
     },
     'count': 1,
     'launchType': 'FARGATE',
@@ -123,4 +134,7 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
             'subnets': eval(os.environ.get('FARGATE_SPAWNER_SUBNETS'))
         },
     },
+
 }
+volume_name = 'jupyterhub-user-{username}'.replace("@", "_").replace(".", "_")
+notebook_dir = '/home/jovyan'
