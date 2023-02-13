@@ -81,12 +81,6 @@ class HubStack(Stack):
                 'UserPoolClient.ClientSecret'
             )
 
-        efs_mount_point = ecs.MountPoint(
-            container_path='/home',
-            source_volume='efs-volume',
-            read_only=False
-        )
-
         # Make a string of the private subnets
         subnet_ids = []
         for subnet in vpc.private_subnets:
@@ -274,7 +268,8 @@ class HubStack(Stack):
                 'FARGATE_SPAWNER_SUBNETS':
                     str(subnet_ids),
                 'FARGATE_SPAWNER_CONTAINER_NAME':
-                    "SingleUserContainer"
+                    "SingleUserContainer",
+                'FARGATE_EFS_ID': file_system.file_system_id
             }
         )
 
@@ -358,4 +353,8 @@ class HubStack(Stack):
             )
         )
 
-        hub_container.add_mount_points(efs_mount_point)
+        hub_container.add_mount_points(ecs.MountPoint(
+            container_path='/home',
+            source_volume='efs-volume',
+            read_only=False
+        ))
