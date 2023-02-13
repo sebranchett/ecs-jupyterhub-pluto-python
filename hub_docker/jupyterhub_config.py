@@ -114,7 +114,7 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
             'mountPoints': [
                 {
                     'containerPath': '/home/jovyan',
-                    'readOnly': false,
+                    'readOnly': False,
                     'sourceVolume': 'efs-{username}-volume'.replace("@", "_").replace(".", "_")
                 }
             ]
