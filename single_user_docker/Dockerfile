@@ -7,8 +7,9 @@ RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-
     ln -s /opt/julia-1.8.5/bin/julia /usr/local/bin/julia && \
     rm julia-1.8.5-linux-x86_64.tar.gz
 
+RUN chown -R $NB_USER /home/${NB_USER}
+
 USER ${NB_USER}
-WORKDIR ${HOME}
 
 RUN julia -e "import Pkg; Pkg.add([\"PlutoUI\", \"Pluto\"]); Pkg.precompile()"
 
@@ -19,5 +20,5 @@ COPY requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --no-cache -r /tmp/requirements.txt
 
-RUN mkdir -p ./.jupyter
-COPY jupyter_server_config.py ./.jupyter/jupyter_server_config.py
+RUN mkdir -p .jupyter
+COPY jupyter_server_config.py .jupyter/jupyter_server_config.py

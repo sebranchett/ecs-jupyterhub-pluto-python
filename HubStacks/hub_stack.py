@@ -165,34 +165,17 @@ class HubStack(Stack):
             single_user_container_image_repository_arn
         )
 
-        single_user_task_definition = ecs.FargateTaskDefinition(
-            self, "TaskDefinition",
-            cpu=512,
-            memory_limit_mib=4096,
-            execution_role=ecs_task_execution_role,
-            task_role=ecs_task_role
-        )
-
-        single_user_task_definition.add_container(
-            "SingleUserContainer",
-            image=ecs.ContainerImage.from_ecr_repository(
-                repository=single_user_repository,
-                tag=single_user_container_image_tag
-            ),
-            privileged=False,
-            port_mappings=[
-                ecs.PortMapping(container_port=8888)
-            ],
-            logging=ecs.LogDrivers.aws_logs(
-                stream_prefix=f'{base_name}SingleUser-',
-                log_retention=logs.RetentionDays.ONE_WEEK
-            )
-        )
-
-        # hub container task definition
-        hub_repository = ecr.Repository.from_repository_arn(
-            self, "Repo", hub_container_image_repository_arn
-        )
+        # Cognito admin users from files
+        admin_users = set()
+        for users in ['hub_docker/admins']:
+            try:
+                with open(users) as fp:
+                    lines = fp.readlines()
+                    for line in lines:
+                        admin_users.add(line.strip())
+            except IOError:
+                pass
+        user_index = 0
 
         allowed_users = set()
         try:
@@ -205,6 +188,52 @@ class HubStack(Stack):
                     allowed_users.add(name)
         except IOError:
             pass
+
+        all_users = admin_users | allowed_users
+        for user in all_users:
+            username = user.replace("@", "_").replace(".", "_")
+
+            single_user_task_definition = ecs.FargateTaskDefinition(
+                self, username + "TaskDefinition",
+                cpu=512,
+                memory_limit_mib=4096,
+                execution_role=ecs_task_execution_role,
+                task_role=ecs_task_role
+            )
+
+            single_user_container = single_user_task_definition.add_container(
+                "SingleUserContainer",
+                image=ecs.ContainerImage.from_ecr_repository(
+                    repository=single_user_repository,
+                    tag=single_user_container_image_tag
+                ),
+                privileged=False,
+                port_mappings=[
+                    ecs.PortMapping(container_port=8888)
+                ],
+                logging=ecs.LogDrivers.aws_logs(
+                    stream_prefix=f'{base_name}SingleUser-',
+                    log_retention=logs.RetentionDays.ONE_WEEK
+                )
+            )
+
+            single_user_task_definition.add_volume(
+                name='efs-' + username + '-volume',
+                efs_volume_configuration=ecs.EfsVolumeConfiguration(
+                    file_system_id=file_system.file_system_id
+                )
+            )
+
+            single_user_container.add_mount_points(ecs.MountPoint(
+                container_path='/home/jovyan/work',
+                source_volume='efs-' + username + '-volume',
+                read_only=False
+            ))
+
+        # hub container task definition
+        hub_repository = ecr.Repository.from_repository_arn(
+            self, "Repo", hub_container_image_repository_arn
+        )
 
         hub_container = hub_task_definition.add_container(
             f'{base_name}Container',
@@ -302,17 +331,18 @@ class HubStack(Stack):
         )
 
         # Cognito admin users from files
-        all_users = set()
+        admin_users = set()
         for users in ['hub_docker/admins']:
             try:
                 with open(users) as fp:
                     lines = fp.readlines()
                     for line in lines:
-                        all_users.add(line.strip())
+                        admin_users.add(line.strip())
             except IOError:
                 pass
         user_index = 0
-        for user in all_users:
+        # Cognito admin users from files
+        for user in admin_users:
             user_index += 1
             cr.AwsCustomResource(
                 self,
@@ -347,7 +377,7 @@ class HubStack(Stack):
         )
 
         hub_task_definition.add_volume(
-            name='efs-volume',
+            name='efs-hub-volume',
             efs_volume_configuration=ecs.EfsVolumeConfiguration(
                 file_system_id=file_system.file_system_id
             )
@@ -355,6 +385,6 @@ class HubStack(Stack):
 
         hub_container.add_mount_points(ecs.MountPoint(
             container_path='/home',
-            source_volume='efs-volume',
+            source_volume='efs-hub-volume',
             read_only=False
         ))
