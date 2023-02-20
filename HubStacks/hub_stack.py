@@ -189,6 +189,7 @@ class HubStack(Stack):
         except IOError:
             pass
 
+        task_definitions = {}
         all_users = admin_users | allowed_users
         for user in all_users:
             username = user.replace("@", "_").replace(".", "_")
@@ -229,6 +230,9 @@ class HubStack(Stack):
                 source_volume='efs-' + username + '-volume',
                 read_only=False
             ))
+
+            task_definitions[username] = \
+                single_user_task_definition.task_definition_arn
 
         # hub container task definition
         hub_repository = ecr.Repository.from_repository_arn(
@@ -288,8 +292,8 @@ class HubStack(Stack):
                     'ecs.' + self.region + '.amazonaws.com',
                 'FARGATE_SPAWNER_CLUSTER':
                     ecs_cluster.cluster_name,
-                'FARGATE_SPAWNER_TASK_DEFINITION':
-                    single_user_task_definition.task_definition_arn,
+                'FARGATE_SPAWNER_TASK_DEFINITIONS':
+                    str(task_definitions),
                 'FARGATE_SPAWNER_TASK_ROLE_ARN':
                     ecs_task_role.role_arn,
                 'FARGATE_SPAWNER_SECURITY_GROUPS':
@@ -330,16 +334,6 @@ class HubStack(Stack):
                 target_groups=[hub_service.target_group])
         )
 
-        # Cognito admin users from files
-        admin_users = set()
-        for users in ['hub_docker/admins']:
-            try:
-                with open(users) as fp:
-                    lines = fp.readlines()
-                    for line in lines:
-                        admin_users.add(line.strip())
-            except IOError:
-                pass
         user_index = 0
         # Cognito admin users from files
         for user in admin_users:
