@@ -40,9 +40,9 @@ c.LocalGenericOAuthenticator.allowed_users = allowed_users
 
 c.LocalGenericOAuthenticator.auto_login = True
 c.LocalGenericOAuthenticator.create_system_users = True
+#     '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)',
 c.LocalGenericOAuthenticator.add_user_cmd = [
-    'adduser', '-q', '--gecos', '',
-    '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)',
+    'adduser', '-q', '--gecos', '""',
     '--disabled-password', '--force-badname'
 ]
 
