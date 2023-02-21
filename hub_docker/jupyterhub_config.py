@@ -2,7 +2,6 @@
 
 import os
 import sys
-import re
 from oauthenticator.generic import LocalGenericOAuthenticator
 from fargatespawner import FargateSpawner, FargateSpawnerECSRoleAuthentication
 from jupyter_client.localinterfaces import public_ips
@@ -18,14 +17,7 @@ c = get_config()
 
 c.JupyterHub.log_level = 10
 
-c.Authenticator.admin_users = admin = set()
-with open(join(root, 'admins')) as f:
-    for line in f:
-        if not line:
-            continue
-        parts = line.split()
-        name = parts[0]
-        admin.add(name)
+c.Authenticator.admin_users = eval(os.environ.get('ADMIN_USERS'))
 
 c.JupyterHub.authenticator_class = LocalGenericOAuthenticator
 c.JupyterHub.shutdown_on_logout = True
@@ -34,9 +26,9 @@ c.OAuthenticator.oauth_callback_url = os.environ.get('OAUTH_CALLBACK_URL')
 c.OAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.OAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 
-allowed_users_string = os.environ.get('ALLOWED_USERS')
-allowed_users = set(re.findall(r"'([^']*)'", allowed_users_string))
-c.LocalGenericOAuthenticator.allowed_users = allowed_users
+c.LocalGenericOAuthenticator.allowed_users = eval(
+    os.environ.get('ALLOWED_USERS')
+)
 
 c.LocalGenericOAuthenticator.auto_login = True
 c.LocalGenericOAuthenticator.create_system_users = True

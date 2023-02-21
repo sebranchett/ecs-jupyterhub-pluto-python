@@ -258,7 +258,8 @@ class HubStack(Stack):
                 log_retention=logs.RetentionDays.ONE_WEEK
             ),
             environment={
-                'ALLOWED_USERS': str(allowed_users),
+                'ADMIN_USERS': str(admin_users),
+                'ALLOWED_USERS': str(all_users),
                 'OAUTH_CALLBACK_URL':
                     'https://' + domain_name +
                     '/hub/oauth_callback',
