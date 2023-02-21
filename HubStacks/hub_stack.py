@@ -192,7 +192,7 @@ class HubStack(Stack):
         task_definitions = {}
         all_users = admin_users | allowed_users
         for user in all_users:
-            username = user
+            username = user.replace("@", "_").replace(".", "_")
 
             single_user_task_definition = ecs.FargateTaskDefinition(
                 self, username + "TaskDef",
@@ -231,7 +231,7 @@ class HubStack(Stack):
                 read_only=False
             ))
 
-            task_definitions[username] = \
+            task_definitions[user] = \
                 single_user_task_definition.task_definition_arn
 
         # hub container task definition
