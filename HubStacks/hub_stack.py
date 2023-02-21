@@ -192,10 +192,10 @@ class HubStack(Stack):
         task_definitions = {}
         all_users = admin_users | allowed_users
         for user in all_users:
-            username = user.replace("@", "_").replace(".", "_")
+            username = user
 
             single_user_task_definition = ecs.FargateTaskDefinition(
-                self, username + "TaskDefinition",
+                self, username + "TaskDef",
                 cpu=512,
                 memory_limit_mib=4096,
                 execution_role=ecs_task_execution_role,

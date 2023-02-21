@@ -40,7 +40,6 @@ c.LocalGenericOAuthenticator.allowed_users = allowed_users
 
 c.LocalGenericOAuthenticator.auto_login = True
 c.LocalGenericOAuthenticator.create_system_users = True
-#     '--home', '/home/$(echo USERNAME | sed "s/[@,.]/_/"g)',
 c.LocalGenericOAuthenticator.add_user_cmd = [
     'adduser', '-q', '--gecos', '""',
     '--disabled-password', '--force-badname'
@@ -94,9 +93,12 @@ c.FargateSpawner.notebook_scheme = "http"
 # #PATH seems to get mangled when starting a single user container from
 # jupyterhub container. /opt/conda/bin does note appear and this is
 # exactly what is needed for the command jupyterhub-singleuser
+task_definition_arns = eval(os.environ.get('FARGATE_SPAWNER_TASK_DEFINITIONS'))
+# spawner.user.name.replace("@", "_").replace(".", "_")
 c.FargateSpawner.get_run_task_args = lambda spawner: {
     'cluster': os.environ.get('FARGATE_SPAWNER_CLUSTER'),
-    'taskDefinition': os.environ.get('FARGATE_SPAWNER_TASK_DEFINITION'),
+    'taskDefinition':
+        task_definition_arns[spawner.get_env()["JUPYTERHUB_USER"]],
     'overrides': {
         'taskRoleArn': os.environ.get('FARGATE_SPAWNER_TASK_ROLE_ARN'),
         'containerOverrides': [{
