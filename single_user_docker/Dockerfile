@@ -7,7 +7,7 @@ RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-
     ln -s /opt/julia-1.8.5/bin/julia /usr/local/bin/julia && \
     rm julia-1.8.5-linux-x86_64.tar.gz
 
-# RUN chown -R $NB_USER /home/${NB_USER}
+RUN mkdir /home/jovyan/efs && chown -R jovyan:users /home/jovyan && chmod -R 755 /home/jovyan
 
 USER ${NB_USER}
 
