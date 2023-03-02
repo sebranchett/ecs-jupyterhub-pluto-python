@@ -11,6 +11,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_logs as logs,
     aws_ecr as ecr,
+    aws_efs as efs,
     App, Stack, Environment
 )
 from cognito_tudelft.tudelft_idp import CognitoTudelftStack
@@ -132,17 +133,35 @@ class HubStack(Stack):
                     'ecs:DescribeTasks',
                     'iam:PassRole',
                     'cloudwatch:PutMetricData',
-                    'cloudwatch:ListMetrics'
+                    'cloudwatch:ListMetrics',
+                    'ec2:DescribeRegions'
                 ]
             )
         )
 
-        ecs_task_role.add_to_policy(
-            iam.PolicyStatement(
-                resources=['*'],
-                actions=['ec2:DescribeRegions']
-            )
+        # efs_role = iam.Role(
+        #     self,
+        #     f'{base_name}EFSRole',
+        #     assumed_by=iam.ServicePrincipal('elasticfilesystem.amazonaws.com')
+        # )
+
+        efs_policy = iam.PolicyStatement(
+            resources=[file_system.file_system_arn],
+            actions=[
+                'elasticfilesystem:ClientRootAccess',
+                'elasticfilesystem:ClientWrite',
+                'elasticfilesystem:ClientMount'
+            ],
+            effect=iam.Effect.ALLOW,
+            principals=[iam.AnyPrincipal()],
+            conditions={
+                "Boolean": {
+                    "elasticfilesystem:AccessedViaMountTarget": "true"
+                }
+            }
         )
+
+        # efs_role.add_to_policy(efs_policy)
 
         hub_task_definition = ecs.FargateTaskDefinition(
             self,
@@ -200,6 +219,21 @@ class HubStack(Stack):
                 memory_limit_mib=4096,
                 execution_role=ecs_task_execution_role,
                 task_role=ecs_task_role
+            )
+
+            single_user_access_point = efs.AccessPoint(
+                self, username + "AccessPt",
+                file_system=file_system,
+                create_acl=efs.Acl(
+                    owner_gid="100",
+                    owner_uid="1000",
+                    permissions="755"
+                ),
+                path="/" + username,
+                posix_user=efs.PosixUser(
+                    gid="100",
+                    uid="1000"
+                )
             )
 
             single_user_container = single_user_task_definition.add_container(
