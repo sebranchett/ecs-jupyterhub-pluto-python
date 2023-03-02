@@ -169,7 +169,8 @@ class HubStack(Stack):
         #     assumed_by=iam.ServicePrincipal('elasticfilesystem.amazonaws.com')
         # )
 
-        efs_policy = iam.PolicyStatement(
+        # efs_policy =
+        iam.PolicyStatement(
             resources=[file_system.file_system_arn],
             actions=[
                 'elasticfilesystem:ClientRootAccess',
@@ -245,7 +246,7 @@ class HubStack(Stack):
                 task_role=ecs_task_role
             )
 
-            single_user_access_point = efs.AccessPoint(
+            single_user_access_pt = efs.AccessPoint(
                 self, username + "AccessPt",
                 file_system=file_system,
                 create_acl=efs.Acl(
@@ -279,7 +280,11 @@ class HubStack(Stack):
             single_user_task_definition.add_volume(
                 name='efs-' + username + '-volume',
                 efs_volume_configuration=ecs.EfsVolumeConfiguration(
-                    file_system_id=file_system.file_system_id
+                    file_system_id=file_system.file_system_id,
+                    authorization_config=ecs.AuthorizationConfig(
+                        access_point_id=single_user_access_pt.access_point_id,
+                        iam="iam"
+                    ),
                 )
             )
 
