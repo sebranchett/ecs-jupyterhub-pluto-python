@@ -112,6 +112,30 @@ class HubStack(Stack):
             )
         )
 
+        ecs_task_execution_role.add_to_policy(
+            iam.PolicyStatement(
+                resources=[file_system.file_system_arn],
+                actions=[
+                    'elasticfilesystem:ClientRootAccess',
+                    'elasticfilesystem:ClientWrite',
+                    'elasticfilesystem:ClientMount'
+                ]
+            )
+        )
+
+        # SEB remove this, just for debugging
+        ecs_task_execution_role.add_to_policy(
+            iam.PolicyStatement(
+                resources=['*'],
+                actions=[
+                    "ssmmessages:CreateControlChannel",
+                    "ssmmessages:CreateDataChannel",
+                    "ssmmessages:OpenControlChannel",
+                    "ssmmessages:OpenDataChannel"
+                ]
+            )
+        )
+
         ecs_task_role = iam.Role(
             self,
             f'{base_name}TaskRole',
