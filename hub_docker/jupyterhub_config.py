@@ -75,6 +75,7 @@ c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.http_timeout = 180
 c.Spawner.start_timeout = 180
+c.Spawner.default_url = '/user/{username}/lab/tree/work'
 
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
