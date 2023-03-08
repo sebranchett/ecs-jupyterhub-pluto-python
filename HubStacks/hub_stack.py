@@ -167,8 +167,6 @@ class HubStack(Stack):
             }
         )
 
-        # efs_role.add_to_policy(efs_policy)
-
         hub_task_definition = ecs.FargateTaskDefinition(
             self,
             f'{base_name}TaskDefinition',
