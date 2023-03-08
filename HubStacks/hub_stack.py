@@ -123,19 +123,6 @@ class HubStack(Stack):
             )
         )
 
-        # SEB remove this, just for debugging
-        ecs_task_execution_role.add_to_policy(
-            iam.PolicyStatement(
-                resources=['*'],
-                actions=[
-                    "ssmmessages:CreateControlChannel",
-                    "ssmmessages:CreateDataChannel",
-                    "ssmmessages:OpenControlChannel",
-                    "ssmmessages:OpenDataChannel"
-                ]
-            )
-        )
-
         ecs_task_role = iam.Role(
             self,
             f'{base_name}TaskRole',
