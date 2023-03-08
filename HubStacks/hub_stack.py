@@ -283,8 +283,9 @@ class HubStack(Stack):
                     file_system_id=file_system.file_system_id,
                     authorization_config=ecs.AuthorizationConfig(
                         access_point_id=single_user_access_pt.access_point_id,
-                        iam="iam"
+                        iam="ENABLED"
                     ),
+                    transit_encryption="ENABLED"
                 )
             )
 
