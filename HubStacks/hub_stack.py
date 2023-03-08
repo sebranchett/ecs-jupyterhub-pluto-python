@@ -150,12 +150,6 @@ class HubStack(Stack):
             )
         )
 
-        # efs_role = iam.Role(
-        #     self,
-        #     f'{base_name}EFSRole',
-        #     assumed_by=iam.ServicePrincipal('elasticfilesystem.amazonaws.com')
-        # )
-
         # efs_policy =
         iam.PolicyStatement(
             resources=[file_system.file_system_arn],
