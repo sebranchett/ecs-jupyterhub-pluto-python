@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import yaml
 
 from aws_cdk import (
     aws_ec2 as ec2,
@@ -13,12 +12,10 @@ from aws_cdk import (
 
 
 class FrameStack(Stack):
-    def __init__(self, app: App, id: str, **kwargs) -> None:
+    def __init__(self, app: App, id: str, config_yaml, **kwargs) -> None:
         super().__init__(app, id, **kwargs)
 
         # General configuration variables
-        config_yaml = yaml.load(
-            open('config.yaml'), Loader=yaml.FullLoader)
         base_name = config_yaml["base_name"]
         domain_prefix = config_yaml['domain_prefix']
         application_prefix = 'pluto-' + domain_prefix

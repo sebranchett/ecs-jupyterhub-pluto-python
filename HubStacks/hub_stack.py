@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import yaml
 
 from aws_cdk import (
     aws_ec2 as ec2,
@@ -20,14 +19,12 @@ from cognito_tudelft.tudelft_idp import CognitoTudelftStack
 class HubStack(Stack):
     def __init__(
         self, app: App, id: str,
-        vpc, load_balancer, file_system, efs_security_group,
+        config_yaml, vpc, load_balancer, file_system, efs_security_group,
         ecs_service_security_group, **kwargs
     ) -> None:
         super().__init__(app, id, **kwargs)
 
         # General configuration variables
-        config_yaml = yaml.load(
-            open('config.yaml'), Loader=yaml.FullLoader)
         base_name = config_yaml["base_name"]
         cognito_user_pool_id = config_yaml['cognito_user_pool_id']
         domain_prefix = config_yaml['domain_prefix']

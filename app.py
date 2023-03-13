@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import yaml
 
 from aws_cdk import App, Environment
 
@@ -12,9 +13,16 @@ default_env = Environment(
 )
 
 app = App()
-frame = FrameStack(app, "FrameStack", env=default_env)
+config_yaml = yaml.load(
+    open('config.yaml'), Loader=yaml.FullLoader)
+frame = FrameStack(
+    app, "FrameStack",
+    config_yaml,
+    env=default_env
+)
 HubStack(
     app, "HubStack",
+    config_yaml,
     vpc=frame.vpc,
     load_balancer=frame.load_balancer,
     file_system=frame.file_system,
