@@ -10,6 +10,8 @@ This work is heavily based on the [Jupyter ECS Service CDK project](https://gith
 
 The adaptation for Pluto is inspired by [plutohub-juliacon2021](https://github.com/barche/plutohub-juliacon2021) (no license supplied) and [pluto-on-jupyterlab](https://github.com/pankgeorg/pluto-on-jupyterlab), under an [Unlicense license](https://github.com/pankgeorg/pluto-on-jupyterlab/blob/master/LICENSE) and adapts this [Pluto server](https://github.com/fonsp/pluto-on-jupyterlab), under an [Unlicense license](https://github.com/fonsp/pluto-on-jupyterlab/blob/master/LICENSE).
 
+[This blog](https://faun.pub/accessing-efs-as-a-non-root-user-inside-ecs-container-using-efs-access-point-74bcd9eff04f) was particularly helpful for connecting AWS ECS and AWS EFS.
+
 The adaptations and original work in this repository are provided under an [Apache 2.0 License](LICENSE).
 
 ## Architecture
