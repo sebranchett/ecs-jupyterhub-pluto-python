@@ -22,7 +22,7 @@ class FrameStack(Stack):
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
-        vpc = ec2.Vpc(self, "VPC", max_azs=2)
+        vpc = ec2.Vpc(self, "VPC", max_azs=2, vpc_name=f'{base_name}VPC')
 
         load_balancer = elb.ApplicationLoadBalancer(
             self, f'{base_name}LoadBalancer',

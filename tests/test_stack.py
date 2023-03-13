@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import yaml
 from aws_cdk import App, Environment
-from aws_cdk.assertions import Template, Match
+from aws_cdk.assertions import Template
 
 from HubStacks.frame_stack import FrameStack
 
@@ -18,6 +18,7 @@ frame_stack = FrameStack(
 )
 template = Template.from_stack(frame_stack)
 
+
 def test_vpc():
     template.has_resource_properties(
         type="AWS::EC2::VPC",
@@ -25,7 +26,9 @@ def test_vpc():
                "EnableDnsHostnames": True,
                "EnableDnsSupport": True,
                "InstanceTenancy": "default",
-               "Tags": [{"Key": "Name",
-                         "Value": "test-frame-stack/VPC"}]
+               "Tags": [{
+                    "Key": "Name",
+                    "Value": "some-basenameVPC"
+                }]
                }
     )
