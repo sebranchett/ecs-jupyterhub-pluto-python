@@ -21,8 +21,10 @@ class FrameStack(Stack):
         application_prefix = 'pluto-' + domain_prefix
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
+        # number of Availability Zones must be 2 or more for load balancing
+        num_azs = config_yaml['num_azs']
 
-        vpc = ec2.Vpc(self, "VPC", max_azs=2, vpc_name=f'{base_name}VPC')
+        vpc = ec2.Vpc(self, "VPC", max_azs=num_azs, vpc_name=f'{base_name}VPC')
 
         load_balancer = elb.ApplicationLoadBalancer(
             self, f'{base_name}LoadBalancer',

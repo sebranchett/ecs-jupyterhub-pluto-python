@@ -16,6 +16,7 @@ oauth_login_service_name: 'AWS Cognito'
 oauth_login_username_key: 'preferred_username'
 oauth_scope: ['openid', 'profile']
 
+num_azs: 2
 num_containers: 1
 
 admin_temp_password: 'A-secret-1'
