@@ -6,3 +6,4 @@ git+https://github.com/sebranchett/cognito-tudelft.git@v0.1
 fargatespawner>=0.0.25
 oauthenticator>=15.0.0
 jupyter_client>=7.4.8
+pytest>=7.1.2
