@@ -42,3 +42,18 @@ def test_synthesis_EC2_resources():
     template.resource_count_is(type="AWS::ECS::TaskDefinition", count=3)
     template.resource_count_is(type="AWS::Logs::LogGroup", count=3)
     template.resource_count_is(type="AWS::EFS::AccessPoint", count=2)
+
+
+# def test_file_system():
+#     template.has_resource_properties(
+#         "AWS::EFS::FileSystem",
+#         {"Encrypted": Match.exact(True)}
+#     )
+#     template.has_resource_properties(
+#         "AWS::EFS::FileSystem",
+#         {"KmsKeyId": Match.any_value()}
+#     )
+#     template.has_resource(
+#         "AWS::EFS::FileSystem",
+#         {"DeletionPolicy": Match.string_like_regexp("Delete")}
+#     )

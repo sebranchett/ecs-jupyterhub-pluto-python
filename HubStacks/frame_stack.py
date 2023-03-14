@@ -128,6 +128,12 @@ class FrameStack(Stack):
         ecs_service_security_group.connections.allow_internally(
             port_range=ec2.Port.all_traffic()
         )
+        # All access between EFS and ECS service containers
+        efs_security_group.connections.allow_from(
+            ecs_service_security_group,
+            port_range=ec2.Port.tcp(2049),
+            description='Allow EFS from ECS Service containers'
+        )
 
         # Output the service URL to CloudFormation outputs
         CfnOutput(

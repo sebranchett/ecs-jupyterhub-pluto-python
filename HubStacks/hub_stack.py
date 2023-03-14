@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from aws_cdk import (
-    aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elb,
     aws_certificatemanager as acm,
     custom_resources as cr,
@@ -41,9 +40,7 @@ class HubStack(Stack):
 
         domain_name = application_prefix + '.' + hosted_zone_name
 
-        security_group_ids = []
-        security_group_ids.append(ecs_service_security_group.security_group_id)
-
+        # Set up user management with a Cognito Stack for TU Delft users
         cognito_tudelft_stack = CognitoTudelftStack(
             self,
             "CognitoTudelftStack",
@@ -78,11 +75,6 @@ class HubStack(Stack):
             describe_cognito_user_pool_client.get_response_field(
                 'UserPoolClient.ClientSecret'
             )
-
-        # Make a string of the private subnets
-        subnet_ids = []
-        for subnet in vpc.private_subnets:
-            subnet_ids.append(subnet.subnet_id)
 
         # ECS task roles and definition
         ecs_task_execution_role = iam.Role(
@@ -147,7 +139,7 @@ class HubStack(Stack):
             )
         )
 
-        # efs_policy =
+        # EFS policy to allow access via Mount Target
         iam.PolicyStatement(
             resources=[file_system.file_system_arn],
             actions=[
@@ -164,28 +156,13 @@ class HubStack(Stack):
             }
         )
 
-        hub_task_definition = ecs.FargateTaskDefinition(
-            self,
-            f'{base_name}TaskDefinition',
-            cpu=512,
-            memory_limit_mib=1024,
-            execution_role=ecs_task_execution_role,
-            task_role=ecs_task_role
-        )
-
-        # ECS cluster
+        # ECS cluster with service, Hub task and JupyterHub admin/user tasks
         ecs_cluster = ecs.Cluster(
             self, f'{base_name}Cluster',
             vpc=vpc
         )
 
-        # single user container task definition
-        single_user_repository = ecr.Repository.from_repository_arn(
-            self, "SingleUserRepo",
-            single_user_container_image_repository_arn
-        )
-
-        # Cognito admin users from files
+        # JupyterHub admin users from file
         admin_users = set()
         for users in ['hub_docker/admins']:
             try:
@@ -195,8 +172,8 @@ class HubStack(Stack):
                         admin_users.add(line.strip())
             except IOError:
                 pass
-        user_index = 0
 
+        # JupyterHub allowed users from file
         allowed_users = set()
         try:
             with open('hub_docker/allowed_users') as fp:
@@ -208,6 +185,12 @@ class HubStack(Stack):
                     allowed_users.add(name)
         except IOError:
             pass
+
+        # single user container task definition
+        single_user_repository = ecr.Repository.from_repository_arn(
+            self, "SingleUserRepo",
+            single_user_container_image_repository_arn
+        )
 
         task_definitions = {}
         all_users = admin_users | allowed_users
@@ -274,10 +257,29 @@ class HubStack(Stack):
             task_definitions[user] = \
                 single_user_task_definition.task_definition_arn
 
-        # hub container task definition
+        # JupyterHub hub task definition
+
+        hub_task_definition = ecs.FargateTaskDefinition(
+            self,
+            f'{base_name}TaskDefinition',
+            cpu=512,
+            memory_limit_mib=1024,
+            execution_role=ecs_task_execution_role,
+            task_role=ecs_task_role
+        )
+
         hub_repository = ecr.Repository.from_repository_arn(
             self, "Repo", hub_container_image_repository_arn
         )
+
+        # Make a string of the private subnets
+        subnet_ids = []
+        for subnet in vpc.private_subnets:
+            subnet_ids.append(subnet.subnet_id)
+
+        # Make a string of the security group ids
+        security_group_ids = []
+        security_group_ids.append(ecs_service_security_group.security_group_id)
 
         hub_container = hub_task_definition.add_container(
             f'{base_name}Container',
@@ -404,12 +406,6 @@ class HubStack(Stack):
                         cognito_user_pool_id)
                 )
             )
-
-        efs_security_group.connections.allow_from(
-            ecs_service_security_group,
-            port_range=ec2.Port.tcp(2049),
-            description='Allow EFS from ECS Service containers'
-        )
 
         hub_task_definition.add_volume(
             name='efs-hub-volume',
