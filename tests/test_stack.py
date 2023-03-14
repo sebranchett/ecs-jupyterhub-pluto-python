@@ -2,7 +2,7 @@
 import yaml
 
 from aws_cdk import App, Environment
-from aws_cdk.assertions import Template
+from aws_cdk.assertions import Template, Match
 
 from HubStacks.frame_stack import FrameStack
 
@@ -58,4 +58,11 @@ def test_vpc():
                     "Value": "some-basenameVPC"
                 }]
                }
+    )
+
+
+def test_load_balancer():
+    template.has_resource_properties(
+        "AWS::ElasticLoadBalancingV2::LoadBalancer",
+        {"Scheme": Match.string_like_regexp("internet-facing")}
     )
