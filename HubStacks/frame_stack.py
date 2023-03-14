@@ -20,7 +20,7 @@ class FrameStack(Stack):
     - Route53 A record
     - EFS file system for persistent storage
     - Security group for an ECS service, allowing internal communication
-    ...
+    ------
     Inputs
     ------
     Inputs are read from a config.yaml file:
@@ -29,19 +29,19 @@ class FrameStack(Stack):
     - base_name: base name to be used in the Stacks
     - domain_prefix: domain prefix for the application
     - num_azs: number of Availability Zones to user (must be 2 or more)
-    ...
+    ----------
     Attributes
     ----------
-    vpc : Vpc
+    - vpc: Vpc -
         a VPC for the application
-    load_balancer : ApplicationLoadBalancer
+    - load_balancer: ApplicationLoadBalancer -
         an application load balancer for the application
-    file_system : FileSystem
+    - file_system: FileSystem -
         a file system for persistent storage of user data
-    efs_security_group : SecurityGroup
+    - efs_security_group: SecurityGroup -
         a security group for the file system that allows user access and
         implements encryption at rest and in transit
-    ecs_service_security_group : SecurityGroup
+    - ecs_service_security_group: SecurityGroup -
         a security group for an ECS service that allows for communication
         between containers of the service
     """
