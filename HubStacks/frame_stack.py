@@ -24,6 +24,9 @@ class FrameStack(Stack):
         # number of Availability Zones must be 2 or more for load balancing
         num_azs = config_yaml['num_azs']
 
+        # An AWS Hosted Zone must already exist and
+        # it's ID and name must be specified in the config_yaml.
+
         vpc = ec2.Vpc(self, "VPC", max_azs=num_azs, vpc_name=f'{base_name}VPC')
 
         load_balancer = elb.ApplicationLoadBalancer(
@@ -79,7 +82,7 @@ class FrameStack(Stack):
             removal_policy=RemovalPolicy.DESTROY
         )
 
-        # Define this here to prevent cyclic reference
+        # Define ECS service security group here to prevent cyclic reference
         ecs_service_security_group = ec2.SecurityGroup(
             self,
             f'{base_name}ServiceSG',
@@ -87,6 +90,7 @@ class FrameStack(Stack):
             description='Hub ECS service containers security group',
             allow_all_outbound=True
         )
+        # Allow internal communication between containers
         ecs_service_security_group.connections.allow_internally(
             port_range=ec2.Port.all_traffic()
         )
