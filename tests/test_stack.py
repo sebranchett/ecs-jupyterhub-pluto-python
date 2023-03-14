@@ -92,3 +92,20 @@ def test_file_system():
         "AWS::KMS::Key",
         {"DeletionPolicy": Match.string_like_regexp("Delete")}
     )
+
+
+def test_ecs_security_group():
+    template.has_resource_properties(
+        "AWS::EC2::SecurityGroup",
+        {
+            "GroupDescription": Match.string_like_regexp(".*ECS service"),
+            "SecurityGroupEgress": Match.any_value()
+        }
+    )
+    template.has_resource_properties(
+        "AWS::EC2::SecurityGroupIngress",
+        {
+            "Description": Match.string_like_regexp(".*ALL TRAFFIC"),
+            "IpProtocol": Match.string_like_regexp("-1")
+        }
+    )
