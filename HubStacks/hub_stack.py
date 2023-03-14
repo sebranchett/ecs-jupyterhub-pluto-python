@@ -40,7 +40,7 @@ class HubStack(Stack):
 
         domain_name = application_prefix + '.' + hosted_zone_name
 
-        # Set up user management with a Cognito Stack for TU Delft users
+        # Set up a Cognito Stack for TU Delft authentication
         cognito_tudelft_stack = CognitoTudelftStack(
             self,
             "CognitoTudelftStack",
@@ -76,7 +76,7 @@ class HubStack(Stack):
                 'UserPoolClient.ClientSecret'
             )
 
-        # ECS task roles and definition
+        # ECS task roles
         ecs_task_execution_role = iam.Role(
             self, f'{base_name}TaskExecutionRole',
             assumed_by=iam.ServicePrincipal('ecs-tasks.amazonaws.com')
@@ -164,14 +164,14 @@ class HubStack(Stack):
 
         # JupyterHub admin users from file
         admin_users = set()
-        for users in ['hub_docker/admins']:
-            try:
-                with open(users) as fp:
-                    lines = fp.readlines()
-                    for line in lines:
-                        admin_users.add(line.strip())
-            except IOError:
-                pass
+        try:
+            with open('hub_docker/admins') as fp:
+                for line in fp:
+                    if not line:
+                        continue
+                    admin_users.add(line.strip())
+        except IOError:
+            pass
 
         # JupyterHub allowed users from file
         allowed_users = set()
@@ -180,9 +180,7 @@ class HubStack(Stack):
                 for line in fp:
                     if not line:
                         continue
-                    parts = line.split()
-                    name = parts[0]
-                    allowed_users.add(name)
+                    allowed_users.add(line.strip())
         except IOError:
             pass
 
