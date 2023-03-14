@@ -66,3 +66,29 @@ def test_load_balancer():
         "AWS::ElasticLoadBalancingV2::LoadBalancer",
         {"Scheme": Match.string_like_regexp("internet-facing")}
     )
+
+
+def test_file_system():
+    template.has_resource_properties(
+        "AWS::EFS::FileSystem",
+        {"Encrypted": Match.exact(True)}
+    )
+    template.has_resource_properties(
+        "AWS::EFS::FileSystem",
+        {"KmsKeyId": Match.any_value()}
+    )
+    template.has_resource(
+        "AWS::EFS::FileSystem",
+        {"DeletionPolicy": Match.string_like_regexp("Delete")}
+    )
+    template.has_resource_properties(
+        "AWS::EC2::SecurityGroup",
+        {
+            "GroupName": Match.string_like_regexp(".*EFSSG"),
+            "SecurityGroupEgress": Match.any_value()
+        }
+    )
+    template.has_resource(
+        "AWS::KMS::Key",
+        {"DeletionPolicy": Match.string_like_regexp("Delete")}
+    )

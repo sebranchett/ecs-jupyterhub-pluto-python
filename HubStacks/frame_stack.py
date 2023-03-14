@@ -79,13 +79,6 @@ class FrameStack(Stack):
             removal_policy=RemovalPolicy.DESTROY
         )
 
-        # Output the service URL to CloudFormation outputs
-        CfnOutput(
-            self,
-            f'{base_name}HubURL',
-            value='https://' + route53_record.domain_name
-        )
-
         # Define this here to prevent cyclic reference
         ecs_service_security_group = ec2.SecurityGroup(
             self,
@@ -96,6 +89,13 @@ class FrameStack(Stack):
         )
         ecs_service_security_group.connections.allow_internally(
             port_range=ec2.Port.all_traffic()
+        )
+
+        # Output the service URL to CloudFormation outputs
+        CfnOutput(
+            self,
+            f'{base_name}HubURL',
+            value='https://' + route53_record.domain_name
         )
 
         # Output resources needed by HubStack
