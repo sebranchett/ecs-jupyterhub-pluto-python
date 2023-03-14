@@ -12,6 +12,40 @@ from aws_cdk import (
 
 
 class FrameStack(Stack):
+    """
+    Create a frame for an application to communicate with the outside world.
+    Adds:
+    - VPC
+    - Application Load Balancer
+    - Route53 A record
+    - EFS file system for persistent storage
+    - Security group for an ECS service, allowing internal communication
+    ...
+    Inputs
+    ------
+    Inputs are read from a config.yaml file:
+    - hosted_zone_id: ID of an AWS Hosted Zone
+    - hosted_zone_name: name of the AWS Hosted Zone
+    - base_name: base name to be used in the Stacks
+    - domain_prefix: domain prefix for the application
+    - num_azs: number of Availability Zones to user (must be 2 or more)
+    ...
+    Attributes
+    ----------
+    vpc : Vpc
+        a VPC for the application
+    load_balancer : ApplicationLoadBalancer
+        an application load balancer for the application
+    file_system : FileSystem
+        a file system for persistent storage of user data
+    efs_security_group : SecurityGroup
+        a security group for the file system that allows user access and
+        implements encryption at rest and in transit
+    ecs_service_security_group : SecurityGroup
+        a security group for an ECS service that allows for communication
+        between containers of the service
+    """
+
     def __init__(self, app: App, id: str, config_yaml, **kwargs) -> None:
         super().__init__(app, id, **kwargs)
 
