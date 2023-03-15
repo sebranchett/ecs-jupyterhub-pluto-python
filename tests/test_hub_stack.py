@@ -66,6 +66,27 @@ def test_single_user_task_definition():
     )
 
 
+def test_single_user_container():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": [{
+                "Image": Match.any_value(),
+                "Privileged": Match.exact(False),
+                "PortMappings": [{
+                    "ContainerPort": Match.exact(8888)
+                }],
+                "LogConfiguration": {
+                    "Options": {
+                        "awslogs-stream-prefix":
+                            Match.string_like_regexp(".*SingleUser")
+                    }
+                },
+                "MountPoints": Match.any_value()
+            }]
+        }
+    )
+
+
 def test_access_point():
     template.has_resource_properties(
         "AWS::EFS::AccessPoint", {
@@ -97,27 +118,6 @@ def test_volume():
     )
 
 
-def test_single_user_container():
-    template.has_resource_properties(
-        "AWS::ECS::TaskDefinition", {
-            "ContainerDefinitions": [{
-                "Image": Match.any_value(),
-                "Privileged": Match.exact(False),
-                "PortMappings": [{
-                    "ContainerPort": Match.exact(8888)
-                }],
-                "LogConfiguration": {
-                    "Options": {
-                        "awslogs-stream-prefix":
-                            Match.string_like_regexp(".*SingleUser")
-                    }
-                },
-                "MountPoints": Match.any_value()
-            }]
-        }
-    )
-
-
 def test_mount_point():
     template.has_resource_properties(
         "AWS::ECS::TaskDefinition", {
@@ -127,6 +127,92 @@ def test_mount_point():
                         Match.string_like_regexp("/home/jovyan/work"),
                     "ReadOnly": Match.exact(False),
                     "SourceVolume": Match.string_like_regexp(".*jupyter")
+                }]
+            }]
+        }
+    )
+
+
+def test_hub_task_definition():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": Match.any_value(),
+            "Cpu": Match.any_value(),
+            "ExecutionRoleArn": Match.any_value(),
+            "Memory": Match.any_value(),
+            "TaskRoleArn": Match.any_value(),
+            "Volumes": [{
+                "Name": Match.string_like_regexp("efs-hub"),
+            }]
+        }
+    )
+
+
+def test_hub_container():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": [{
+                "Image": Match.any_value(),
+                "Privileged": Match.exact(False),
+                "PortMappings": [{
+                    "ContainerPort": Match.exact(8000)
+                }],
+                "LogConfiguration": {
+                    "Options": {
+                        "awslogs-stream-prefix":
+                            Match.string_like_regexp(".*Hub-")
+                    }
+                },
+                "MountPoints": Match.any_value(),
+                "Environment": [{
+                    "Name": Match.string_like_regexp("ADMIN_USERS")
+                }, {
+                    "Name": Match.string_like_regexp("ALLOWED_USERS")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_CALLBACK_URL")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_CLIENT_ID")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_CLIENT_SECRET")
+                }, {
+                    "Name":
+                        Match.string_like_regexp("OAUTH_LOGIN_SERVICE_NAME")
+                }, {
+                    "Name":
+                        Match.string_like_regexp("OAUTH_LOGIN_USERNAME_KEY")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_AUTHORIZE_URL")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_TOKEN_URL")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_USERDATA_URL")
+                }, {
+                    "Name": Match.string_like_regexp("OAUTH_SCOPE")
+                }, {
+                    "Name": Match.string_like_regexp("FARGATE_HUB_CONNECT_IP")
+                }, {
+                    "Name": Match.string_like_regexp("FARGATE_SPAWNER_REGION")
+                }, {
+                    "Name":
+                        Match.string_like_regexp("FARGATE_SPAWNER_ECS_HOST")
+                }, {
+                    "Name": Match.string_like_regexp("FARGATE_SPAWNER_CLUSTER")
+                }, {
+                    "Name": Match.
+                        string_like_regexp("FARGATE_SPAWNER_TASK_DEFINITIONS")
+                }, {
+                    "Name": Match.
+                        string_like_regexp("FARGATE_SPAWNER_TASK_ROLE_ARN")
+                }, {
+                    "Name": Match.
+                        string_like_regexp("FARGATE_SPAWNER_SECURITY_GROUPS")
+                }, {
+                    "Name": Match.string_like_regexp("FARGATE_SPAWNER_SUBNETS")
+                }, {
+                    "Name": Match.
+                        string_like_regexp("FARGATE_SPAWNER_CONTAINER_NAME")
+                }, {
+                    "Name": Match.string_like_regexp("FARGATE_EFS_ID")
                 }]
             }]
         }
