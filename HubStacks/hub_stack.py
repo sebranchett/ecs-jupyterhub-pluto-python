@@ -408,7 +408,7 @@ class HubStack(Stack):
                         'UserPoolId': cognito_user_pool_id,
                         'Username': user,
                         'TemporaryPassword': config_yaml[
-                            'admin_temp_password'
+                            'temp_password'
                         ],
                         'UserAttributes': [
                             {

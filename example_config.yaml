@@ -19,4 +19,4 @@ oauth_scope: ['openid', 'profile']
 num_azs: 2
 num_containers: 1
 
-admin_temp_password: 'A-secret-1'
+temp_password: 'A-secret-1'
