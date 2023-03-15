@@ -33,7 +33,7 @@ hub_stack = HubStack(
 template = Template.from_stack(hub_stack)
 
 
-def test_synthesis_EC2_resources():
+def test_check_resource_counts():
     template.resource_count_is(type="Custom::AWS", count=2)
     template.resource_count_is(type="AWS::IAM::Policy", count=4)
     template.resource_count_is(type="AWS::IAM::Role", count=3)
@@ -49,6 +49,31 @@ def test_cognito_external_user():
         "Custom::AWS",
         {"Create": Match.string_like_regexp(".*adminCreateUser.*jupyter")}
     )
+
+
+def test_single_user_task_definition():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": Match.any_value(),
+            "Cpu": Match.any_value(),
+            "ExecutionRoleArn": Match.any_value(),
+            "Memory": Match.any_value(),
+            "NetworkMode": Match.string_like_regexp("awsvpc"),
+            "RequiresCompatibilities": Match.any_value(),
+            "TaskRoleArn": Match.any_value(),
+            "Volumes": Match.any_value(),
+        }
+    )
+
+
+def test_access_point():
+    template.has_resource_properties(
+        "AWS::EFS::AccessPoint", {
+                "RootDirectory":
+                {"Path": Match.string_like_regexp("/jupyter")}
+        }
+    )
+
 
 #     template.has_resource_properties(
 #         "AWS::EFS::FileSystem",
