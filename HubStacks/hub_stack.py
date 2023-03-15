@@ -256,7 +256,6 @@ class HubStack(Stack):
                 single_user_task_definition.task_definition_arn
 
         # JupyterHub hub task definition
-
         hub_task_definition = ecs.FargateTaskDefinition(
             self,
             f'{base_name}TaskDefinition',
@@ -347,6 +346,20 @@ class HubStack(Stack):
             }
         )
 
+        hub_task_definition.add_volume(
+            name='efs-hub-volume',
+            efs_volume_configuration=ecs.EfsVolumeConfiguration(
+                file_system_id=file_system.file_system_id
+            )
+        )
+
+        hub_container.add_mount_points(ecs.MountPoint(
+            container_path='/home',
+            source_volume='efs-hub-volume',
+            read_only=False
+        ))
+
+        # Create the JupyterHub service
         hub_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self, f'{base_name}HubService',
             cluster=ecs_cluster,
@@ -375,9 +388,13 @@ class HubStack(Stack):
                 target_groups=[hub_service.target_group])
         )
 
+        # Use the Cognito identity provider for non TU Delft users
+        external_users = set()
+        for user in all_users:
+            if not user.endswith("tudelft.nl"):
+                external_users.add(user)
         user_index = 0
-        # Cognito admin users from files
-        for user in admin_users:
+        for user in external_users:
             user_index += 1
             cr.AwsCustomResource(
                 self,
@@ -404,16 +421,3 @@ class HubStack(Stack):
                         cognito_user_pool_id)
                 )
             )
-
-        hub_task_definition.add_volume(
-            name='efs-hub-volume',
-            efs_volume_configuration=ecs.EfsVolumeConfiguration(
-                file_system_id=file_system.file_system_id
-            )
-        )
-
-        hub_container.add_mount_points(ecs.MountPoint(
-            container_path='/home',
-            source_volume='efs-hub-volume',
-            read_only=False
-        ))
