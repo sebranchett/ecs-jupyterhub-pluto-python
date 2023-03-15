@@ -44,7 +44,12 @@ def test_synthesis_EC2_resources():
     template.resource_count_is(type="AWS::EFS::AccessPoint", count=2)
 
 
-# def test_file_system():
+def test_cognito_external_user():
+    template.has_resource_properties(
+        "Custom::AWS",
+        {"Create": Match.string_like_regexp(".*adminCreateUser.*jupyter")}
+    )
+
 #     template.has_resource_properties(
 #         "AWS::EFS::FileSystem",
 #         {"Encrypted": Match.exact(True)}
