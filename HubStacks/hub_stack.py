@@ -40,6 +40,35 @@ class HubStack(Stack):
 
         domain_name = application_prefix + '.' + hosted_zone_name
 
+        # JupyterHub admin users from file
+        admin_users = set()
+        try:
+            with open('hub_docker/admins') as fp:
+                for line in fp:
+                    if not line:
+                        continue
+                    admin_users.add(line.strip())
+        except IOError:
+            pass
+
+        # JupyterHub allowed users from file
+        allowed_users = set()
+        try:
+            with open('hub_docker/allowed_users') as fp:
+                for line in fp:
+                    if not line:
+                        continue
+                    allowed_users.add(line.strip())
+        except IOError:
+            pass
+
+        # Find all the non TU Delft (external) users
+        all_users = admin_users | allowed_users
+        external_users = set()
+        for user in all_users:
+            if not user.endswith("tudelft.nl"):
+                external_users.add(user)
+
         # Set up a Cognito Stack for TU Delft authentication
         cognito_tudelft_stack = CognitoTudelftStack(
             self,
@@ -74,6 +103,36 @@ class HubStack(Stack):
         cognito_user_pool_client_secret = \
             describe_cognito_user_pool_client.get_response_field(
                 'UserPoolClient.ClientSecret'
+            )
+
+        # Use the Cognito identity provider for non TU Delft users
+        user_index = 0
+        for user in external_users:
+            user_index += 1
+            cr.AwsCustomResource(
+                self,
+                f'{base_name}UserPoolUser'+str(user_index),
+                policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
+                    resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
+                on_create=cr.AwsSdkCall(
+                    service='CognitoIdentityServiceProvider',
+                    action='adminCreateUser',
+                    parameters={
+                        'UserPoolId': cognito_user_pool_id,
+                        'Username': user,
+                        'TemporaryPassword': config_yaml[
+                            'temp_password'
+                        ],
+                        'UserAttributes': [
+                            {
+                                'Name': 'preferred_username',
+                                'Value': user
+                            }
+                        ]
+                    },
+                    physical_resource_id=cr.PhysicalResourceId.of(
+                        cognito_user_pool_id)
+                )
             )
 
         # ECS task roles
@@ -162,28 +221,6 @@ class HubStack(Stack):
             vpc=vpc
         )
 
-        # JupyterHub admin users from file
-        admin_users = set()
-        try:
-            with open('hub_docker/admins') as fp:
-                for line in fp:
-                    if not line:
-                        continue
-                    admin_users.add(line.strip())
-        except IOError:
-            pass
-
-        # JupyterHub allowed users from file
-        allowed_users = set()
-        try:
-            with open('hub_docker/allowed_users') as fp:
-                for line in fp:
-                    if not line:
-                        continue
-                    allowed_users.add(line.strip())
-        except IOError:
-            pass
-
         # single user container task definition
         single_user_repository = ecr.Repository.from_repository_arn(
             self, "SingleUserRepo",
@@ -191,7 +228,6 @@ class HubStack(Stack):
         )
 
         task_definitions = {}
-        all_users = admin_users | allowed_users
         for user in all_users:
             username = user.replace("@", "_").replace(".", "_")
 
@@ -387,37 +423,3 @@ class HubStack(Stack):
             default_action=elb.ListenerAction.forward(
                 target_groups=[hub_service.target_group])
         )
-
-        # Use the Cognito identity provider for non TU Delft users
-        external_users = set()
-        for user in all_users:
-            if not user.endswith("tudelft.nl"):
-                external_users.add(user)
-        user_index = 0
-        for user in external_users:
-            user_index += 1
-            cr.AwsCustomResource(
-                self,
-                f'{base_name}UserPoolUser'+str(user_index),
-                policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
-                    resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
-                on_create=cr.AwsSdkCall(
-                    service='CognitoIdentityServiceProvider',
-                    action='adminCreateUser',
-                    parameters={
-                        'UserPoolId': cognito_user_pool_id,
-                        'Username': user,
-                        'TemporaryPassword': config_yaml[
-                            'temp_password'
-                        ],
-                        'UserAttributes': [
-                            {
-                                'Name': 'preferred_username',
-                                'Value': user
-                            }
-                        ]
-                    },
-                    physical_resource_id=cr.PhysicalResourceId.of(
-                        cognito_user_pool_id)
-                )
-            )
