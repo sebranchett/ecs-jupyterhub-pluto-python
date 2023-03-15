@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import yaml
 
-from aws_cdk import App, Environment, RemovalPolicy
+from aws_cdk import App, Environment
 from aws_cdk.assertions import Template, Match
 
 from HubStacks.frame_stack import FrameStack
@@ -97,6 +97,27 @@ def test_volume():
     )
 
 
+def test_single_user_container():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": [{
+                "Image": Match.any_value(),
+                "Privileged": Match.exact(False),
+                "PortMappings": [{
+                    "ContainerPort": Match.exact(8888)
+                }],
+                "LogConfiguration": {
+                    "Options": {
+                        "awslogs-stream-prefix":
+                            Match.string_like_regexp(".*SingleUser")
+                    }
+                },
+                "MountPoints": Match.any_value()
+            }]
+        }
+    )
+
+
 def test_mount_point():
     template.has_resource_properties(
         "AWS::ECS::TaskDefinition", {
@@ -110,17 +131,3 @@ def test_mount_point():
             }]
         }
     )
-
-
-#     template.has_resource_properties(
-#         "AWS::EFS::FileSystem",
-#         {"Encrypted": Match.exact(True)}
-#     )
-#     template.has_resource_properties(
-#         "AWS::EFS::FileSystem",
-#         {"KmsKeyId": Match.any_value()}
-#     )
-#     template.has_resource(
-#         "AWS::EFS::FileSystem",
-#         {"DeletionPolicy": Match.string_like_regexp("Delete")}
-#     )
