@@ -81,6 +81,22 @@ def test_access_point():
     )
 
 
+def test_volume():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "Volumes": [{
+                "Name": Match.string_like_regexp(".*jupyter"),
+                "EFSVolumeConfiguration": {
+                    "AuthorizationConfig":
+                        {"IAM": Match.string_like_regexp("ENABLED")},
+                    "TransitEncryption": Match.string_like_regexp("ENABLED"),
+                    "FilesystemId": Match.any_value()
+                }
+            }]
+        }
+    )
+
+
 #     template.has_resource_properties(
 #         "AWS::EFS::FileSystem",
 #         {"Encrypted": Match.exact(True)}
