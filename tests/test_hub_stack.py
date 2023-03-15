@@ -217,3 +217,19 @@ def test_hub_container():
             }]
         }
     )
+
+
+def test_hub_service():
+    template.has_resource_properties(
+        "AWS::ECS::Service", {
+            "Cluster": Match.any_value(),
+            "TaskDefinition": Match.any_value(),
+            "LoadBalancers": [{"ContainerPort": Match.exact(8000)}],
+            "DesiredCount": Match.any_value(),
+            "NetworkConfiguration": {
+                "AwsvpcConfiguration": {
+                    "SecurityGroups": Match.any_value()
+                }
+            }
+        }
+    )
