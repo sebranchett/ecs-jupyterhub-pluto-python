@@ -69,8 +69,14 @@ def test_single_user_task_definition():
 def test_access_point():
     template.has_resource_properties(
         "AWS::EFS::AccessPoint", {
-                "RootDirectory":
-                {"Path": Match.string_like_regexp("/jupyter")}
+            "FileSystemId": Match.any_value(),
+            "PosixUser": Match.any_value(),
+            "RootDirectory": {
+                "Path": Match.string_like_regexp("/jupyter"),
+                "CreationInfo": {
+                    "Permissions": Match.string_like_regexp("755")
+                }
+            }
         }
     )
 
