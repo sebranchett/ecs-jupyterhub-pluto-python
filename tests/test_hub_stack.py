@@ -97,6 +97,21 @@ def test_volume():
     )
 
 
+def test_mount_point():
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": [{
+                "MountPoints": [{
+                    "ContainerPath":
+                        Match.string_like_regexp("/home/jovyan/work"),
+                    "ReadOnly": Match.exact(False),
+                    "SourceVolume": Match.string_like_regexp(".*jupyter")
+                }]
+            }]
+        }
+    )
+
+
 #     template.has_resource_properties(
 #         "AWS::EFS::FileSystem",
 #         {"Encrypted": Match.exact(True)}
