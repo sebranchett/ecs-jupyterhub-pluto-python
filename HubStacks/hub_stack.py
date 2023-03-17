@@ -198,23 +198,6 @@ class HubStack(Stack):
             )
         )
 
-        # EFS policy to allow access via Mount Target
-        iam.PolicyStatement(
-            resources=[file_system.file_system_arn],
-            actions=[
-                'elasticfilesystem:ClientRootAccess',
-                'elasticfilesystem:ClientWrite',
-                'elasticfilesystem:ClientMount'
-            ],
-            effect=iam.Effect.ALLOW,
-            principals=[iam.AnyPrincipal()],
-            conditions={
-                "Boolean": {
-                    "elasticfilesystem:AccessedViaMountTarget": "true"
-                }
-            }
-        )
-
         # ECS cluster with service, Hub task and JupyterHub admin/user tasks
         ecs_cluster = ecs.Cluster(
             self, f'{base_name}Cluster',
