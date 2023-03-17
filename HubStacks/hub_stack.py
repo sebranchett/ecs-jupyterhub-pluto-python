@@ -403,7 +403,8 @@ class HubStack(Stack):
             load_balancer=load_balancer,
             desired_count=config_yaml['num_containers'],
             security_groups=[ecs_service_security_group],
-            open_listener=False
+            open_listener=False,
+            enable_ecs_managed_tags=True
         )
 
         hub_service.target_group.configure_health_check(
