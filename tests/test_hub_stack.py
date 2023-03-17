@@ -235,7 +235,8 @@ def test_hub_service():
     )
 
 
-def test_role_and_policy():
+def test_role():
+    # TaskExecutionRole
     template.has_resource_properties(
         "AWS::IAM::Role", {
             "AssumeRolePolicyDocument": {"Statement": [{"Principal": {
@@ -244,11 +245,61 @@ def test_role_and_policy():
             "ManagedPolicyArns": [Match.string_like_regexp("arn.*")]
         }
     )
+    # TaskRole
     template.has_resource_properties(
         "AWS::IAM::Role", {
             "AssumeRolePolicyDocument": {"Statement": [{"Principal": {
                 "Service": "ecs-tasks.amazonaws.com"
             }}]},
             "ManagedPolicyArns": [Match.not_("arn.*")]
+        }
+    )
+
+
+def test_policy():
+    # TaskExecutionRole policy
+    template.has_resource_properties(
+        "AWS::IAM::Policy", {
+            "PolicyDocument": {"Statement": [
+                {"Action": "iam:PassRole"},
+                {"Action": [
+                    "elasticfilesystem:ClientRootAccess",
+                    "elasticfilesystem:ClientWrite",
+                    "elasticfilesystem:ClientMount"
+                ]},
+                {"Action": [
+                    "ecr:BatchCheckLayerAvailability",
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:BatchGetImage"
+                ]},
+                {"Action": "ecr:GetAuthorizationToken"},
+                {"Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                ]},
+                {"Action": Match.any_value()},
+                {"Action": Match.any_value()}
+            ]}
+        }
+    )
+
+    # TaskRole policy
+    template.has_resource_properties(
+        "AWS::IAM::Policy", {
+            "PolicyDocument": {"Statement": [{"Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents",
+                "logs:PutRetentionPolicy",
+                "ecs:RunTask",
+                "ecs:StopTask",
+                "ecs:DescribeTasks",
+                "iam:PassRole",
+                "cloudwatch:PutMetricData",
+                "cloudwatch:ListMetrics",
+                "ec2:DescribeRegions"
+            ]}]}
         }
     )
