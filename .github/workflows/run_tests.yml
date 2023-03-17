@@ -1,0 +1,36 @@
+name: Test AWS CDK
+
+# Controls when the action will run. 
+on:
+  push:
+    branches: [ testing ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  aws_cdk:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+  
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: install npm
+        uses: actions/setup-node@v3
+
+      - name: Install AWS CDK
+        shell: bash
+        run: 'npm install -g aws-cdk'
+
+      - name: Install Requirements
+        shell: bash
+        run: 'pip3 install -r requirements.txt'
+
+      - name: Run tests
+        shell: bash
+        run: 'pytest'
