@@ -233,3 +233,22 @@ def test_hub_service():
             }
         }
     )
+
+
+def test_role_and_policy():
+    template.has_resource_properties(
+        "AWS::IAM::Role", {
+            "AssumeRolePolicyDocument": {"Statement": [{"Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+            }}]},
+            "ManagedPolicyArns": [Match.string_like_regexp("arn.*")]
+        }
+    )
+    template.has_resource_properties(
+        "AWS::IAM::Role", {
+            "AssumeRolePolicyDocument": {"Statement": [{"Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+            }}]},
+            "ManagedPolicyArns": [Match.not_("arn.*")]
+        }
+    )
