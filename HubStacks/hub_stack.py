@@ -85,6 +85,8 @@ class HubStack(Stack):
         describe_cognito_user_pool_client = cr.AwsCustomResource(
             self,
             f'{base_name}UserPoolClientIDResource',
+            install_latest_aws_sdk=False,
+            log_retention=logs.RetentionDays.ONE_WEEK,
             policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
                 resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
             on_create=cr.AwsSdkCall(
@@ -112,6 +114,8 @@ class HubStack(Stack):
             cr.AwsCustomResource(
                 self,
                 f'{base_name}UserPoolUser'+str(user_index),
+                install_latest_aws_sdk=False,
+                log_retention=logs.RetentionDays.ONE_WEEK,
                 policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
                     resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE),
                 on_create=cr.AwsSdkCall(
