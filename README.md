@@ -1,4 +1,6 @@
-# Building up slowly
+![Test AWS CDK badge](https://github.com/sebranchett/step-by-step/actions/workflows/run_tests.yml/badge.svg)
+
+# Serverless JupyterHub
 
 This repository is intended for researchers who wish to provide their group with a Jupyter or Pluto environment. The environment provides access to group specific tools and shared, read-only data. This data would typically be images used for testing algorithms, raw experimental data, course material for advanced students, etc.
 
