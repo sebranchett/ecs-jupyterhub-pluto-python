@@ -1,0 +1,1 @@
+This directory contains the code to set up an empty Cognito UserPool.
