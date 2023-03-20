@@ -4,6 +4,8 @@ import yaml
 from aws_cdk import App, Environment
 from aws_cdk.assertions import Template, Match
 
+
+from cognito_tudelft.tudelft_idp import CognitoTudelftStack
 from HubStacks.frame_stack import FrameStack
 from HubStacks.hub_stack import HubStack
 
