@@ -73,9 +73,8 @@ c.JupyterHub.hub_port = 8081
 # the hostname/ip that should be used to connect to the hub
 c.JupyterHub.hub_connect_ip = ip
 
-c.Spawner.http_timeout = 180
-c.Spawner.start_timeout = 180
-c.Spawner.default_url = '/user/{username}/lab/tree/work'
+# Moved to single user Docker:
+# c.Spawner.default_url = '/user/{username}/lab/tree/work'
 
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
