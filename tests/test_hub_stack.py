@@ -35,14 +35,14 @@ template = Template.from_stack(hub_stack)
 
 
 def test_check_resource_counts():
-    template.resource_count_is(type="Custom::AWS", count=2)
-    template.resource_count_is(type="AWS::IAM::Policy", count=5)
+    template.resource_count_is(type="Custom::AWS", count=3)
+    template.resource_count_is(type="AWS::IAM::Policy", count=6)
     template.resource_count_is(type="AWS::IAM::Role", count=4)
     template.resource_count_is(type="AWS::ECS::Cluster", count=1)
     template.resource_count_is(type="AWS::ECS::Service", count=1)
-    template.resource_count_is(type="AWS::ECS::TaskDefinition", count=3)
-    template.resource_count_is(type="AWS::Logs::LogGroup", count=3)
-    template.resource_count_is(type="AWS::EFS::AccessPoint", count=2)
+    template.resource_count_is(type="AWS::ECS::TaskDefinition", count=4)
+    template.resource_count_is(type="AWS::Logs::LogGroup", count=4)
+    template.resource_count_is(type="AWS::EFS::AccessPoint", count=3)
 
 
 def test_cognito_external_user():
@@ -278,6 +278,7 @@ def test_policy():
                     "logs:CreateLogStream",
                     "logs:PutLogEvents"
                 ]},
+                {"Action": Match.any_value()},
                 {"Action": Match.any_value()},
                 {"Action": Match.any_value()}
             ]}
