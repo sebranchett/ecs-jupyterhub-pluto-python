@@ -3,7 +3,7 @@ name: Test AWS CDK
 # Controls when the action will run. 
 on:
   push:
-    branches: [ testing ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
