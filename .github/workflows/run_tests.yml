@@ -39,4 +39,7 @@ jobs:
 
       - name: Run tests
         shell: bash
-        run: 'pytest'
+        run: |
+            cp example_config.yaml config.yaml
+            cp hub_docker/example_allowed_users hub_docker/allowed_users
+            pytest
