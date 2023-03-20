@@ -49,11 +49,7 @@ This architecture uses serverless services in order to remove the need from mana
 ## Users
 The CDK HubStack stack will provision the jupyter administrator user(s) according to the list provided in the hub_docker/admins file. A list of allowed (non-admin) users can be specified in a hub_docker/allowed_users file, see example file provided.
 
-If you wish to add or remove users, edit the allowed_users file. You will then need to destroy the HubStack, empty the Cognito user pool and redeploy the HubStack.
-
-If you destroy the HubStack, the Cognito users will not be deleted. You need to delete them by hand, otherwise redeploying the HubStack will fail with a message that the user already exists. This is the purpose of the `cleanup_user_pool.sh` script, which works only if you have exactly one Cognito user pool.
-
-If you want to change the status of a user, from standard to administrator or from administrator to standard, do this in JupyterHub.
+If you wish to add or remove users, or change their status, edit the allowed_users and admin files. You will then need to destroy the HubStack and then redeploy it. Do not perform user administration in JupyterHub. HubStack manages not only the users, but also their storage.
 
 ## Security
 
@@ -69,7 +65,4 @@ Inherited from Avishay Bar.
 - Permanent resources, such as EFS, CMK, and Cognito User Pool (temporarily disabled) are defined to be destroyed when the stack is deleted.
 
 ## ToDo
-- Get Fargate Spawner working
-- Connect non-volatile storage
-- Make tests
 - Rethink (bootstrap) stack organisation
