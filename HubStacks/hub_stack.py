@@ -136,6 +136,16 @@ class HubStack(Stack):
                     },
                     physical_resource_id=cr.PhysicalResourceId.of(
                         cognito_user_pool_id)
+                ),
+                on_delete=cr.AwsSdkCall(
+                    service='CognitoIdentityServiceProvider',
+                    action='adminDeleteUser',
+                    parameters={
+                        'UserPoolId': cognito_user_pool_id,
+                        'Username': user
+                    },
+                    physical_resource_id=cr.PhysicalResourceId.of(
+                        cognito_user_pool_id)
                 )
             )
 
