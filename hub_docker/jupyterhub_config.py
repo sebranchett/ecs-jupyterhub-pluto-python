@@ -122,3 +122,29 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
     },
 
 }
+
+# Cull single-user processes that are idle (1800 seconds = half hour)
+c.JupyterHub.services = [
+    {
+        'name': 'idle-culler',
+        'command': [
+            sys.executable, '-m',
+            'jupyterhub_idle_culler', '--timeout=1800'
+        ],
+    }
+]
+
+c.JupyterHub.load_roles = [
+    {
+        "name": "list-and-cull",  # name the role
+        "services": [
+            "idle-culler",  # assign the service to this role
+        ],
+        "scopes": [
+            # declare what permissions the service should have
+            "list:users",  # list users
+            "read:users:activity",  # read user last-activity
+            "admin:servers",  # start/stop servers
+        ],
+    }
+]
