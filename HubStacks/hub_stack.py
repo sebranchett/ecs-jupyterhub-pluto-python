@@ -16,6 +16,48 @@ from cognito_tudelft.tudelft_idp import CognitoTudelftStack
 
 
 class HubStack(Stack):
+    """
+    Create a Fargate JupyterHub service that spawns single user Fargate
+    containers. Users can authenticate through native Cognito or the TU Delft
+    identity provider. EFS is used to provide persistent storage of the users'
+    /home/jovyan/work directory.
+    Adds:
+    - CognitoTudelftStack
+    - ECS cluster with JupyterHub service
+    - JupyterHub Fargate task definition
+    - Single user Fargate task definition for each admin/allowed user
+    - IAM roles and policies
+    ------
+    Inputs
+    ------
+    - config_yaml: str -
+        name of yaml file containing configuration
+    - vpc: Vpc -
+        a VPC for the application
+    - load_balancer: ApplicationLoadBalancer -
+        an application load balancer for the application
+    - file_system: FileSystem -
+        a file system for persistent storage of user data
+    - efs_security_group: SecurityGroup -
+        a security group for the file system that allows user access and
+        implements encryption at rest and in transit
+    - ecs_service_security_group: SecurityGroup - SEB
+        a security group for an ECS service that allows for communication
+        between containers of the service
+    ----------------------------
+    Inputs from config.yaml file
+    ----------------------------
+    Inputs are read from a config.yaml file:
+    - hosted_zone_id: ID of an AWS Hosted Zone
+    - hosted_zone_name: name of the AWS Hosted Zone
+    - base_name: base name to be used in the Stacks
+    - domain_prefix: domain prefix for the application
+    - num_azs: number of Availability Zones to user (must be 2 or more)
+    ----------
+    Attributes
+    ----------
+    """
+
     def __init__(
         self, app: App, id: str,
         config_yaml, vpc, load_balancer, file_system, efs_security_group,
