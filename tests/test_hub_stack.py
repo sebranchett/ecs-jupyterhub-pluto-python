@@ -25,7 +25,6 @@ hub_stack = HubStack(
     vpc=frame.vpc,
     load_balancer=frame.load_balancer,
     file_system=frame.file_system,
-    efs_security_group=frame.efs_security_group,
     ecs_service_security_group=frame.ecs_service_security_group,
     env=Environment(
         account="123456789012", region="eu-central-1"

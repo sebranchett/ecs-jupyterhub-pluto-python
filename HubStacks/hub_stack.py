@@ -38,9 +38,6 @@ class HubStack(Stack):
         an application load balancer for the application
     - file_system: FileSystem -
         a file system for persistent storage of user data
-    - efs_security_group: SecurityGroup -
-        a security group for the file system that allows user access and
-        implements encryption at rest and in transit
     - ecs_service_security_group: SecurityGroup - SEB
         a security group for an ECS service that allows for communication
         between containers of the service
@@ -60,7 +57,7 @@ class HubStack(Stack):
 
     def __init__(
         self, app: App, id: str,
-        config_yaml, vpc, load_balancer, file_system, efs_security_group,
+        config_yaml, vpc, load_balancer, file_system,
         ecs_service_security_group, **kwargs
     ) -> None:
         super().__init__(app, id, **kwargs)

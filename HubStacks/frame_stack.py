@@ -38,9 +38,6 @@ class FrameStack(Stack):
         an application load balancer for the application
     - file_system: FileSystem -
         a file system for persistent storage of user data
-    - efs_security_group: SecurityGroup -
-        a security group for the file system that allows user access and
-        implements encryption at rest and in transit
     - ecs_service_security_group: SecurityGroup -
         a security group for an ECS service that allows for communication
         between containers of the service
@@ -146,5 +143,4 @@ class FrameStack(Stack):
         self.vpc = vpc
         self.load_balancer = load_balancer
         self.file_system = file_system
-        self.efs_security_group = efs_security_group
         self.ecs_service_security_group = ecs_service_security_group
