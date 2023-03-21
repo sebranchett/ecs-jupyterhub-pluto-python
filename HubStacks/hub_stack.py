@@ -38,21 +38,42 @@ class HubStack(Stack):
         an application load balancer for the application
     - file_system: FileSystem -
         a file system for persistent storage of user data
-    - ecs_service_security_group: SecurityGroup - SEB
+    - ecs_service_security_group: SecurityGroup
         a security group for an ECS service that allows for communication
         between containers of the service
     ----------------------------
     Inputs from config.yaml file
     ----------------------------
     Inputs are read from a config.yaml file:
-    - hosted_zone_id: ID of an AWS Hosted Zone
-    - hosted_zone_name: name of the AWS Hosted Zone
     - base_name: base name to be used in the Stacks
-    - domain_prefix: domain prefix for the application
-    - num_azs: number of Availability Zones to user (must be 2 or more)
-    ----------
-    Attributes
-    ----------
+    - certificate_arn: ARN of the managed certificate for the domain name
+    - cognito_user_pool_id: ID of the (empty) cognito user pool to use
+    - domain_prefix: text to add after 'pluto-' and before domain name
+    - hosted_zone_name: name of the AWS Hosted Zone
+    - hub_container_image_repository_arn: ARN of the ECR for the JupyterHub
+      image
+    - hub_container_image_tag: tag for the JupyterHub image
+    - num_containers: the desired number of JupyterHub service containers
+    - oauth_login_username_key: key of field to use as username, either
+      'preferred_username' (NedID) or 'email'
+    - oauth_login_service_name: a name for the Cognito login service
+    - oauth_scope: list of oauth scopes
+    - single_user_container_image_repository_arn: ARN of the ECR for the
+      single user image
+    - single_user_container_image_tag: tag for the single user image
+    - temp_password: password given to non TU Delft users. They will be
+      required to change this the first time they log in
+
+    -----------------------
+    Inputs from admins file
+    -----------------------
+    List of admin usernames, one per line in plane text file called 'admins'
+
+    ------------------------------
+    Inputs from allowed_users file
+    ------------------------------
+    List of regular user usernames, one per line in plane text file
+    called 'allowed_users'
     """
 
     def __init__(
