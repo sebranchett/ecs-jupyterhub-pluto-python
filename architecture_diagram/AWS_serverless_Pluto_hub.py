@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[81]:
-
-
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.enduser import DesktopAndAppStreaming as laptop
 from diagrams.aws.network import Route53
