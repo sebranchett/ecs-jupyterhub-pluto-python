@@ -113,6 +113,14 @@ def test_volume():
                     "TransitEncryption": Match.string_like_regexp("ENABLED"),
                     "FilesystemId": Match.any_value()
                 }
+            }, {
+                "Name": Match.string_like_regexp(".*reference"),
+                "EFSVolumeConfiguration": {
+                    "AuthorizationConfig":
+                        {"IAM": Match.string_like_regexp("ENABLED")},
+                    "TransitEncryption": Match.string_like_regexp("ENABLED"),
+                    "FilesystemId": Match.any_value()
+                }
             }]
         }
     )
@@ -127,6 +135,28 @@ def test_mount_point():
                         Match.string_like_regexp("/home/jovyan/work"),
                     "ReadOnly": Match.exact(False),
                     "SourceVolume": Match.string_like_regexp(".*jupyter")
+                }, {
+                    "ContainerPath":
+                        Match.string_like_regexp("/home/jovyan/reference"),
+                    "ReadOnly": Match.exact(False),
+                    "SourceVolume": Match.string_like_regexp("efs-reference")
+                }]
+            }]
+        }
+    )
+    template.has_resource_properties(
+        "AWS::ECS::TaskDefinition", {
+            "ContainerDefinitions": [{
+                "MountPoints": [{
+                    "ContainerPath":
+                        Match.string_like_regexp("/home/jovyan/work"),
+                    "ReadOnly": Match.exact(False),
+                    "SourceVolume": Match.string_like_regexp("efs-.*-volume")
+                }, {
+                    "ContainerPath":
+                        Match.string_like_regexp("/home/jovyan/reference"),
+                    "ReadOnly": Match.exact(True),
+                    "SourceVolume": Match.string_like_regexp("efs-reference")
                 }]
             }]
         }

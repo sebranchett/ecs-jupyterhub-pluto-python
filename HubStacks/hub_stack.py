@@ -327,6 +327,7 @@ class HubStack(Stack):
                 )
             )
 
+            # Add personal storage
             single_user_task_definition.add_volume(
                 name='efs-' + username + '-volume',
                 efs_volume_configuration=ecs.EfsVolumeConfiguration(
@@ -343,6 +344,30 @@ class HubStack(Stack):
                 container_path='/home/jovyan/work',
                 source_volume='efs-' + username + '-volume',
                 read_only=False
+            ))
+
+            # Add read only access to storage owned by admins
+            if user in admin_users:
+                read_only = False
+            else:
+                read_only = True
+
+            single_user_task_definition.add_volume(
+                name='efs-reference-volume',
+                efs_volume_configuration=ecs.EfsVolumeConfiguration(
+                    file_system_id=file_system.file_system_id,
+                    authorization_config=ecs.AuthorizationConfig(
+                        access_point_id=single_user_access_pt.access_point_id,
+                        iam="ENABLED"
+                    ),
+                    transit_encryption="ENABLED"
+                )
+            )
+
+            single_user_container.add_mount_points(ecs.MountPoint(
+                container_path='/home/jovyan/reference',
+                source_volume='efs-reference-volume',
+                read_only=read_only
             ))
 
             task_definitions[user] = \
