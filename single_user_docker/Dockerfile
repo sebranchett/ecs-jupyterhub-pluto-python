@@ -20,4 +20,8 @@ RUN python3 -m pip install --no-cache -r /tmp/requirements.txt
 RUN mkdir -p .jupyter
 COPY jupyter_server_config.py .jupyter/jupyter_server_config.py
 
+# Create a shared read only reference directory
+# The read-only restriction is applied by the AWS mount
+RUN mkdir -p /home/jovyan/reference
+
 WORKDIR /home/jovyan/work

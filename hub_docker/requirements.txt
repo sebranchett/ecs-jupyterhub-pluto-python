@@ -1,0 +1,5 @@
+oauthenticator
+notebook
+fargatespawner
+jupyter_client
+jupyterhub-idle-culler
