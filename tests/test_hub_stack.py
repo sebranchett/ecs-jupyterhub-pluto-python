@@ -41,7 +41,7 @@ def test_check_resource_counts():
     template.resource_count_is(type="AWS::ECS::Service", count=1)
     template.resource_count_is(type="AWS::ECS::TaskDefinition", count=4)
     template.resource_count_is(type="AWS::Logs::LogGroup", count=4)
-    template.resource_count_is(type="AWS::EFS::AccessPoint", count=3)
+    template.resource_count_is(type="AWS::EFS::AccessPoint", count=4)
 
 
 def test_cognito_external_user():

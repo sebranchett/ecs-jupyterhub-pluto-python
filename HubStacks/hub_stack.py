@@ -167,6 +167,22 @@ class HubStack(Stack):
                 'UserPoolClient.ClientSecret'
             )
 
+        # Create an EFS access point for shared reference material
+        reference_access_pt = efs.AccessPoint(
+            self, "ReferenceAccessPt",
+            file_system=file_system,
+            create_acl=efs.Acl(
+                owner_gid="100",
+                owner_uid="1000",
+                permissions="755"
+            ),
+            path="/reference",
+            posix_user=efs.PosixUser(
+                gid="100",
+                uid="1000"
+            )
+        )
+
         # Use the Cognito identity provider for non TU Delft users
         user_index = 0
         for user in external_users:
@@ -346,7 +362,7 @@ class HubStack(Stack):
                 read_only=False
             ))
 
-            # Add read only access to storage owned by admins
+            # Add read only access to reference storage owned by admins
             if user in admin_users:
                 read_only = False
             else:
@@ -357,7 +373,7 @@ class HubStack(Stack):
                 efs_volume_configuration=ecs.EfsVolumeConfiguration(
                     file_system_id=file_system.file_system_id,
                     authorization_config=ecs.AuthorizationConfig(
-                        access_point_id=single_user_access_pt.access_point_id,
+                        access_point_id=reference_access_pt.access_point_id,
                         iam="ENABLED"
                     ),
                     transit_encryption="ENABLED"
