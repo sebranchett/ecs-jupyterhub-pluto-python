@@ -48,7 +48,7 @@ class HubStack(Stack):
     - base_name: base name to be used in the Stacks
     - certificate_arn: ARN of the managed certificate for the domain name
     - cognito_user_pool_id: ID of the (empty) cognito user pool to use
-    - domain_prefix: text to add after 'pluto-' and before domain name
+    - application_prefix: application prefix to domain name
     - hosted_zone_name: name of the AWS Hosted Zone
     - hub_container_image_repository_arn: ARN of the ECR for the JupyterHub
       image
@@ -86,8 +86,7 @@ class HubStack(Stack):
         # General configuration variables
         base_name = config_yaml["base_name"]
         cognito_user_pool_id = config_yaml['cognito_user_pool_id']
-        domain_prefix = config_yaml['domain_prefix']
-        application_prefix = 'pluto-' + domain_prefix
+        application_prefix = config_yaml['application_prefix']
         certificate_arn = config_yaml['certificate_arn']
         hub_container_image_repository_arn = \
             config_yaml['hub_container_image_repository_arn']

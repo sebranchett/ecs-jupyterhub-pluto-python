@@ -27,7 +27,7 @@ class FrameStack(Stack):
     - hosted_zone_id: ID of an AWS Hosted Zone
     - hosted_zone_name: name of the AWS Hosted Zone
     - base_name: base name to be used in the Stacks
-    - domain_prefix: domain prefix for the application
+    - application_prefix: application prefix to domain name
     - num_azs: number of Availability Zones to user (must be 2 or more)
     - efs_policy: RETAIN to keep file system after deleting stack or DESTROY
       Reuse of an existing file system is not (yet) implemented
@@ -50,8 +50,7 @@ class FrameStack(Stack):
 
         # General configuration variables
         base_name = config_yaml["base_name"]
-        domain_prefix = config_yaml['domain_prefix']
-        application_prefix = 'pluto-' + domain_prefix
+        application_prefix = config_yaml['application_prefix']
         hosted_zone_id = config_yaml['hosted_zone_id']
         hosted_zone_name = config_yaml['hosted_zone_name']
         # number of Availability Zones must be 2 or more for load balancing
