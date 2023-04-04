@@ -305,8 +305,8 @@ class HubStack(Stack):
 
             single_user_task_definition = ecs.FargateTaskDefinition(
                 self, username + "TaskDef",
-                cpu=512,
-                memory_limit_mib=4096,
+                cpu=2048,
+                memory_limit_mib=5120,
                 execution_role=ecs_task_execution_role,
                 task_role=ecs_task_role
             )
@@ -392,8 +392,8 @@ class HubStack(Stack):
         hub_task_definition = ecs.FargateTaskDefinition(
             self,
             f'{base_name}TaskDefinition',
-            cpu=512,
-            memory_limit_mib=1024,
+            cpu=256,
+            memory_limit_mib=512,
             execution_role=ecs_task_execution_role,
             task_role=ecs_task_role
         )
