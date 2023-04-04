@@ -30,6 +30,7 @@ class FrameStack(Stack):
     - domain_prefix: domain prefix for the application
     - num_azs: number of Availability Zones to user (must be 2 or more)
     - efs_policy: RETAIN to keep file system after deleting stack or DESTROY
+      Reuse of an existing file system is not (yet) implemented
     ----------
     Attributes
     ----------
