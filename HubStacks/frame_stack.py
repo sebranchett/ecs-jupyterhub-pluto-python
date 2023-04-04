@@ -29,6 +29,7 @@ class FrameStack(Stack):
     - base_name: base name to be used in the Stacks
     - domain_prefix: domain prefix for the application
     - num_azs: number of Availability Zones to user (must be 2 or more)
+    - efs_policy: RETAIN to keep file system after deleting stack or DESTROY
     ----------
     Attributes
     ----------
@@ -54,6 +55,10 @@ class FrameStack(Stack):
         hosted_zone_name = config_yaml['hosted_zone_name']
         # number of Availability Zones must be 2 or more for load balancing
         num_azs = config_yaml['num_azs']
+        if config_yaml['efs_policy'] == 'DESTROY':
+            removal_policy = RemovalPolicy.DESTROY
+        else:
+            removal_policy = RemovalPolicy.RETAIN
 
         # An AWS Hosted Zone must already exist and
         # it's ID and name must be specified in the config_yaml.
@@ -110,7 +115,7 @@ class FrameStack(Stack):
             security_group=efs_security_group,
             encrypted=True,
             kms_key=efs_cmk,
-            removal_policy=RemovalPolicy.DESTROY
+            removal_policy=removal_policy
         )
 
         # Define ECS service security group here to prevent cyclic reference

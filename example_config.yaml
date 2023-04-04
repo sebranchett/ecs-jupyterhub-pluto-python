@@ -19,4 +19,5 @@ oauth_scope: ['openid', 'profile']
 num_azs: 2
 num_containers: 1
 
+efs_policy: 'DESTROY'
 temp_password: 'A-secret-1'
