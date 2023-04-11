@@ -1,5 +1,8 @@
-FROM jupyter/minimal-notebook:latest
-# tag 2023-04-03 works with hub version 3.1.1
+# make sure the single user version is compatile with the hub version
+FROM jupyter/minimal-notebook:hub-3.1.1
+
+# check there is a jupyter process running
+HEALTHCHECK CMD pgrep "jupyter" > /dev/null || exit 1
 
 USER root
 RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-x86_64.tar.gz && \

@@ -8,8 +8,8 @@ https://jupyter-docker-stacks.readthedocs.io/en/latest/.
 ## Testing locally
 You can check this Dockerfile locally:
 ```
-docker build . -t local
-docker run --rm -it -p 8888:8888 local
+docker build . -t single-user-jupyterlab-pluto
+docker run --rm -it -p 8888:8888 single-user-jupyterlab-pluto
 ```
 
 In a browser, navigate to one of the URLs in the output of the last command.
@@ -41,7 +41,7 @@ aws ecr describe-repositories
 
 Give the image a tag for the ECR repository:
 ```
-docker tag local <ecr_repository_uri>
+docker tag single-user-jupyterlab-pluto <ecr_repository_uri>
 ```
 
 Allow Docker to access your ECR repository:
