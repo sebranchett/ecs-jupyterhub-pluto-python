@@ -1,5 +1,8 @@
 FROM jupyterhub/jupyterhub:3.1.1
 
+# check there is a jupyterhub process running
+HEALTHCHECK CMD pgrep "jupyterhub" > /dev/null || exit 1
+
 LABEL Project Jupyter <ipython-dev@scipy.org>
 
 # Install dependencies

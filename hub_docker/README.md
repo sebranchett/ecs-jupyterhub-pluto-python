@@ -55,6 +55,6 @@ docker push <ecr_repository_uri>
 If you want to update the Docker image you use for JupyterHub, you can copy and paste the 4 commands you need by opening the ECR management console, selecting your repository and clicking on 'View push commands'.
 
 ## Notes to future self
-I decided to use `preferred_username` as the `OAUTH_LOGIN_USERNAME_KEY`. The JupyterHub file system cannot create users' home directories with `@` or `.` in the name. Custom home directories replace these characters with `_`. Admin users are created before `OAUTH`, so their username(, home directory) and `preferred_username` should be the same and not have difficult characters.
+I decided to use `preferred_username` as the `OAUTH_LOGIN_USERNAME_KEY`. The JupyterHub file system cannot create users' home directories with `@` or `.` in the name. Custom home directories replace these characters with `_`. Non-TU Delft users are created before `OAUTH`, so their username(, home directory) and `preferred_username` should be the same and not have difficult characters.
 
-The allowed_users are passed in an environmental variable. I wanted to create a Cognito group of allowed users and do the administration from there. Unfortunately, Cognito passes the group information in the ACCESS token and Jupyter looks for group membership in the USERDATA_URL.
+Users are passed in environmental variables. If you want to create a Cognito group of users and do the administration from there, be aware that Cognito passes group information in the ACCESS token and Jupyter looks for group membership in the USERDATA_URL. Also, do not forget to create persistent storage for the users.
