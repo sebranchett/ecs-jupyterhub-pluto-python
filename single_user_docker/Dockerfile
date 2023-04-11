@@ -1,4 +1,5 @@
 FROM jupyter/minimal-notebook:latest
+# tag 2023-04-03 works with hub version 3.1.1
 
 USER root
 RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-x86_64.tar.gz && \
