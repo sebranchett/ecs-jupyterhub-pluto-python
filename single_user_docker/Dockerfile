@@ -5,11 +5,13 @@ FROM jupyter/minimal-notebook:hub-3.1.1
 HEALTHCHECK CMD pgrep "jupyter" > /dev/null || exit 1
 
 USER root
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-x86_64.tar.gz && \
-    tar -xvzf julia-1.8.5-linux-x86_64.tar.gz && \
-    mv julia-1.8.5 /opt/ && \
-    ln -s /opt/julia-1.8.5/bin/julia /usr/local/bin/julia && \
-    rm julia-1.8.5-linux-x86_64.tar.gz
+ENV JULIA_VERSION=1.8.5
+ENV JULIA_MINOR=1.8
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/${JULIA_MINOR}/julia-${JULIA_VERSION}-linux-x86_64.tar.gz && \
+    tar -xvzf julia-${JULIA_VERSION}-linux-x86_64.tar.gz && \
+    mv julia-${JULIA_VERSION} /opt/ && \
+    ln -s /opt/julia-${JULIA_VERSION}/bin/julia /usr/local/bin/julia && \
+    rm julia-${JULIA_VERSION}-linux-x86_64.tar.gz
 
 RUN chown -R jovyan:users /home/jovyan && chmod -R 755 /home/jovyan
 
