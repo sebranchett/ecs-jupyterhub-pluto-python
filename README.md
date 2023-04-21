@@ -62,6 +62,11 @@ If you wish to add or remove users, or change their status, edit the allowed_use
 **Note:**
 Destroying the HubStack will not destroy the permanent EFS storage. Destroying the FrameStack will destroy the EFS storage, if you have set `efs_policy: 'DESTROY'` in the `config.yaml` file.
 
+## Helper Scripts
+Two helper scripts are included in this repository:
+- `cleanup_user_pool.sh` only works if there is exactly one Cognito UserPool. It removes all users from that one Cognito UserPool
+- `update_check.sh` compares the currently used and the most up-to-date versions of JupyterHub and Julia
+
 ## Security
 
 Inherited from Avishay Bar.
