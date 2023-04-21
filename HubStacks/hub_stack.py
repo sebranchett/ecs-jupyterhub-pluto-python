@@ -61,6 +61,7 @@ class HubStack(Stack):
     - single_user_container_image_repository_arn: ARN of the ECR for the
       single user image
     - single_user_container_image_tag: tag for the single user image
+    - s3_arn: optional ARN of S3 bucket, for read-only access to data
     - temp_password: password given to non TU Delft users. They will be
       required to change this the first time they log in
 
@@ -95,6 +96,7 @@ class HubStack(Stack):
             config_yaml['single_user_container_image_repository_arn']
         single_user_container_image_tag = \
             config_yaml['single_user_container_image_tag']
+        s3_arn = config_yaml['s3_arn']
         hosted_zone_name = config_yaml['hosted_zone_name']
 
         domain_name = application_prefix + '.' + hosted_zone_name
@@ -286,6 +288,24 @@ class HubStack(Stack):
                 ]
             )
         )
+
+        if s3_arn:
+            ecs_task_role.add_to_policy(
+                iam.PolicyStatement(
+                    resources=[s3_arn],
+                    actions=[
+                        's3:ListBucket'
+                    ]
+                )
+            )
+            ecs_task_role.add_to_policy(
+                iam.PolicyStatement(
+                    resources=[s3_arn + '/*'],
+                    actions=[
+                        's3:GetObject'
+                    ]
+                )
+            )
 
         # ECS cluster with service, Hub task and JupyterHub admin/user tasks
         ecs_cluster = ecs.Cluster(

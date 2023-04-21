@@ -10,6 +10,7 @@ hub_container_image_repository_arn: 'arn:aws:ecr:<region>:<account>:repository/<
 hub_container_image_tag: 'latest'
 single_user_container_image_repository_arn: 'arn:aws:ecr:<region>:<account>:repository/<repo_name>'
 single_user_container_image_tag: 'latest'
+s3_arn: 'arn:aws:s3:::bucketname'
 
 cognito_user_pool_id: '<region>_<hash>'
 oauth_login_service_name: 'AWS Cognito'

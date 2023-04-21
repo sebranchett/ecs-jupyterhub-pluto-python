@@ -24,6 +24,8 @@ This architecture uses serverless services in order to remove the need from mana
 
 The code in this repository can be used to create a set of two AWS CloudFormation templates: the FrameStack arranges the connections between an Amazon VPC (Virtual Private Cloud) and the outside world; the HubStack defines an Amazon ECS (Elastic Cloud Service) that manages a JupyterHub server and single user JupyterLab servers.
 
+There is an option to specify an S3 bucket, that can be read from the JupyterLab servers.
+
 ## Pre-requisites
 
 - An AWS account with aws-cdk set up on your local machine. See [Setting up the environment](https://github.com/sebranchett/ec2-instance-python#setting-up-the-environment)

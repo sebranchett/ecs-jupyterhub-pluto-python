@@ -317,20 +317,29 @@ def test_policy():
     # TaskRole policy
     template.has_resource_properties(
         "AWS::IAM::Policy", {
-            "PolicyDocument": {"Statement": [{"Action": [
-                "logs:CreateLogStream",
-                "logs:DescribeLogGroups",
-                "logs:DescribeLogStreams",
-                "logs:CreateLogGroup",
-                "logs:PutLogEvents",
-                "logs:PutRetentionPolicy",
-                "ecs:RunTask",
-                "ecs:StopTask",
-                "ecs:DescribeTasks",
-                "iam:PassRole",
-                "cloudwatch:PutMetricData",
-                "cloudwatch:ListMetrics",
-                "ec2:DescribeRegions"
-            ]}]}
+            "PolicyDocument": {"Statement": [{
+                "Action": [
+                    "logs:CreateLogStream",
+                    "logs:DescribeLogGroups",
+                    "logs:DescribeLogStreams",
+                    "logs:CreateLogGroup",
+                    "logs:PutLogEvents",
+                    "logs:PutRetentionPolicy",
+                    "ecs:RunTask",
+                    "ecs:StopTask",
+                    "ecs:DescribeTasks",
+                    "iam:PassRole",
+                    "cloudwatch:PutMetricData",
+                    "cloudwatch:ListMetrics",
+                    "ec2:DescribeRegions"
+                ]}, {
+                    "Action": "s3:ListBucket",
+                    "Resource": "arn:aws:s3:::bucketname"
+                }, {
+                    "Action": "s3:GetObject",
+                    "Resource":
+                        "arn:aws:s3:::bucketname/*"
+                }
+            ]}
         }
     )
