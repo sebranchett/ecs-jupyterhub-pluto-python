@@ -74,8 +74,6 @@ c.JupyterHub.hub_port = 8081
 c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.start_timeout = 180
-# Moved to single user Docker:
-# c.Spawner.default_url = '/user/{username}/lab/tree/work'
 
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
@@ -85,10 +83,10 @@ c.FargateSpawner.aws_ecs_host = os.environ.get('FARGATE_SPAWNER_ECS_HOST')
 c.FargateSpawner.notebook_port = 8888
 c.FargateSpawner.notebook_scheme = "http"
 # #PATH seems to get mangled when starting a single user container from
-# jupyterhub container. /opt/conda/bin does note appear and this is
+# jupyterhub container. /opt/conda/bin does not appear and this is
 # exactly what is needed for the command jupyterhub-singleuser
 task_definition_arns = eval(os.environ.get('FARGATE_SPAWNER_TASK_DEFINITIONS'))
-# spawner.user.name.replace("@", "_").replace(".", "_")
+
 c.FargateSpawner.get_run_task_args = lambda spawner: {
     'cluster': os.environ.get('FARGATE_SPAWNER_CLUSTER'),
     'taskDefinition':
