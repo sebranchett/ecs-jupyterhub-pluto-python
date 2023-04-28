@@ -1,4 +1,4 @@
-![Test AWS CDK badge](https://github.com/sebranchett/step-by-step/actions/workflows/run_tests.yml/badge.svg)
+![Test AWS CDK badge](https://github.com/sebranchett/ecs-jupyterhub-pluto-python/actions/workflows/run_tests.yml/badge.svg)
 
 # Serverless JupyterHub
 
