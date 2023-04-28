@@ -11,6 +11,7 @@ Starting points are:
 This work is heavily based on the [Jupyter ECS Service CDK project](https://github.com/avishayil/jupyter-ecs-service), under an [Apache 2.0 License](https://github.com/sebranchett/serverless-jupyter-python/blob/main/LICENSE). See also [Avishay Bar's blog post](https://avishayil.medium.com/serverless-jupyter-hub-with-aws-fargate-and-cdk-2160154187a1).
 
 The adaptation for Pluto is inspired by [plutohub-juliacon2021](https://github.com/barche/plutohub-juliacon2021) (no license supplied) and [pluto-on-jupyterlab](https://github.com/pankgeorg/pluto-on-jupyterlab), under an [Unlicense license](https://github.com/pankgeorg/pluto-on-jupyterlab/blob/master/LICENSE) and adapts this [Pluto server](https://github.com/fonsp/pluto-on-jupyterlab), under an [Unlicense license](https://github.com/fonsp/pluto-on-jupyterlab/blob/master/LICENSE).
+It depends on the [Fargate spawner](https://github.com/uktrade/fargatespawner), used under an [MIT license](https://github.com/uktrade/fargatespawner/blob/master/LICENSE).
 
 [This blog](https://faun.pub/accessing-efs-as-a-non-root-user-inside-ecs-container-using-efs-access-point-74bcd9eff04f) was particularly helpful for connecting AWS ECS and AWS EFS.
 
