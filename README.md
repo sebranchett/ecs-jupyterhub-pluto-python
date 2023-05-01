@@ -57,6 +57,9 @@ There is an option to specify an S3 bucket, that can be read from the JupyterLab
 
   Please add this ARN and the image tag to the `config.yaml` file.
 
+## Testing
+You can use the standard `pytest` command on your local home directory to test whether the environment is set up correctly. These tests check that the CloudFormation templates are created as expected. They do not create infrastructure in the AWS cloud.
+
 ## Users
 The CDK HubStack stack will provision the jupyter administrator user(s) according to the list provided in the hub_docker/admins file. A list of allowed (non-admin) users can be specified in a hub_docker/allowed_users file, see example file provided.
 
@@ -64,6 +67,19 @@ If you wish to add or remove users, or change their status, edit the allowed_use
 
 **Note:**
 Destroying the HubStack will not destroy the permanent EFS storage. Destroying the FrameStack will destroy the EFS storage, if you have set `efs_policy: 'DESTROY'` in the `config.yaml` file.
+
+## Storage
+Each user has their own private read/write storage located at `/home/jovyan/work`. Only files in this directory (and it's subdirectories) will be available in future work sessions.
+
+The shared directory `/home/jovyan/reference` is available to all users. Administrators have read/write access, standard users have only read access.
+
+## Useful CDK commands
+```
+cdk deploy --all --require-approval never  # deploy everything
+cdk destroy HubStack -f  # remove the container infrastructure, but leave the framework and storage
+cdk deploy HubStack --require-approval never  # redeploy the container infrastructure
+cdk destroy --all -f  # remove both infrastructure stacks
+```
 
 ## Helper Scripts
 Two helper scripts are included in this repository:
