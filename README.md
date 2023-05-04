@@ -40,6 +40,7 @@ There is an option to specify an S3 bucket, that can be read from the JupyterLab
   
   If it takes longer than 30 minutes, make sure that your Registered domain's 'Name servers' are those named in the Hosted Zone's 'NS' record. [See here](https://stackoverflow.com/a/68703299/13237339).
 - A cognito user pool. If you do not yet have a suitable user pool, you can use the separate stack in the `prerequisites` folder to create one. Please collect the UserPool ID and add it to the `config.yaml` file.
+- If you want the TU Delft to act as identity provider, you can read how to request this [here](https://github.com/sebranchett/cognito-tudelft#procedure-to-request-tu-delft-as-identity-provider).
 - [Docker Desktop](https://docs.docker.com/desktop/), to create the JupyterHub and the single user images.
 - A private repository on Amazon Elastic Container Registry (ECR), in the same region you want your infrastructure. This repository should contain a JupyterHub image. See the README file in hub_docker directory.
 
