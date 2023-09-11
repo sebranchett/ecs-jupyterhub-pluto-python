@@ -1,4 +1,4 @@
-FROM jupyterhub/jupyterhub:3.1.1
+FROM jupyterhub/jupyterhub:4.0.2
 
 # check there is a jupyterhub process running
 HEALTHCHECK CMD pgrep "jupyterhub" > /dev/null || exit 1
