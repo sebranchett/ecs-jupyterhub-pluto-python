@@ -74,6 +74,7 @@ c.JupyterHub.hub_port = 8081
 c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.start_timeout = 180
+c.Spawner.http_timeout = 90
 
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
