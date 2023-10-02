@@ -1,5 +1,5 @@
 # should make sure the single user version is compatile with the hub version
-FROM jupyter/minimal-notebook:hub-3.1.1
+FROM jupyter/minimal-notebook:hub-4.0.2
 
 # check there is a jupyter process running
 HEALTHCHECK CMD pgrep "jupyter" > /dev/null || exit 1
