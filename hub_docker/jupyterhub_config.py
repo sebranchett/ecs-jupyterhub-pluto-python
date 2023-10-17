@@ -75,13 +75,14 @@ c.JupyterHub.hub_connect_ip = ip
 
 c.Spawner.start_timeout = 180
 c.Spawner.http_timeout = 180
+c.Spawner.ip = '0.0.0.0'
+c.Spawner.port = 8888
 
 c.JupyterHub.spawner_class = FargateSpawner
 c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
 
 c.FargateSpawner.aws_region = os.environ.get('FARGATE_SPAWNER_REGION')
 c.FargateSpawner.aws_ecs_host = os.environ.get('FARGATE_SPAWNER_ECS_HOST')
-c.FargateSpawner.notebook_port = 8888
 c.FargateSpawner.notebook_scheme = "http"
 # #PATH seems to get mangled when starting a single user container from
 # jupyterhub container. /opt/conda/bin does not appear and this is
@@ -97,7 +98,6 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
         'containerOverrides': [{
             'command': [
                 '/opt/conda/bin/jupyterhub-singleuser',
-                f'--port={spawner.notebook_port}',
                 '--config=jupyter_server_config.py'
             ],
             'environment': [
