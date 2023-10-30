@@ -83,6 +83,7 @@ c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
 
 c.FargateSpawner.aws_region = os.environ.get('FARGATE_SPAWNER_REGION')
 c.FargateSpawner.aws_ecs_host = os.environ.get('FARGATE_SPAWNER_ECS_HOST')
+c.FargateSpawner.notebook_port = 8888
 c.FargateSpawner.notebook_scheme = "http"
 # #PATH seems to get mangled when starting a single user container from
 # jupyterhub container. /opt/conda/bin does not appear and this is
