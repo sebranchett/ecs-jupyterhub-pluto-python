@@ -105,7 +105,8 @@ c.FargateSpawner.get_run_task_args = lambda spawner: {
                 {
                     'name': name,
                     'value': value,
-                } for name, value in spawner.get_env().items()
+                } for name, value in
+                ([n, v] for [n, v] in spawner.get_env().items() if n != 'PATH')
             ],
             'name': os.environ.get('FARGATE_SPAWNER_CONTAINER_NAME')
         }],
